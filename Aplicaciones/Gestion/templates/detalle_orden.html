@@ -1,0 +1,252 @@
+{%  load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Pago</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+}
+
+.comprobante {
+    width: 800px;
+    margin: auto;
+    border: 1px solid #000;
+    padding: 20px;
+    background-color: #fff;
+    overflow: hidden; /* Añadido */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+}
+
+header .header-left h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+header .header-right {
+    text-align: right;
+}
+
+header .header-right h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+section {
+    margin-top: 20px;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-left,
+.info-right {
+    width: 48%;
+}
+
+.info h3 {
+    margin-top: 0;
+    background-color: #f8f8f8;
+    padding: 5px;
+    border: 1px solid #000;
+}
+
+.servicios,
+.repuestos {
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #000;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+.total {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.responsable {
+    margin-top: 20px;
+}
+
+footer {
+    margin-top: 20px;
+    text-align: right;
+    border-top: 2px solid #000;
+    padding-top: 10px;
+}
+
+.buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.buttons .btn {
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+}
+
+.buttons .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.buttons .btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+    <div class="comprobante" id="comprobante">
+        <header>
+            <div class="header-left">
+                <img src="{% static 'lib/adminlte/img/logoMulti.jpeg' %}" alt=""  width="250px" class="img-size-25 img-circle mr-3">
+            <p><strong>Dirección</strong>: BELLAVISTA Calle: SABANILLA Numero: N61-77
+            Interseccion: CUARTA TRANSVERSA</p>
+                <p><strong>Tel:</strong>+593 96 405 5665</p>
+            </div>
+            <div class="header-right">
+                <h2>ORDEN DE RECEPCIÓN Y REPARACIÓN</h2>
+                <h3 style="color: red;">No: <span>{{orden.numero_ord}} </span></h3>
+                <p>Fecha: <span>{{ orden.fecha_ord }}</span></p>
+            </div>
+        </header>
+        <section class="info">
+            <div class="info-left">
+                <h3>DATOS DEL CLIENTE</h3>
+                <p><strong>Nombre:</strong> {{ cliente.nombre_cli }}</p>
+                <p><strong>Dirección:</strong> {{cliente.dir_id.ciudad_dir}} , {{cliente.dir_id.barrio_dir}} {{cliente.dir_id.calle_dir}} {{cliente.dir_id.numero_dir}} </p>
+                <p><strong>CI:</strong> {{ cliente.ci_cli }}</p>
+                <p><strong>Teléfono:</strong> {{ cliente.telefono_cli }}</p>
+                <p><strong>Email:</strong> {{ cliente.email_cli }}</p>
+                <p><strong>Observaciones:</strong> {{ orden.observaciones_ord }}</p>
+            </div>
+            <div class="info-right">
+                <h3>DATOS DEL VEHÍCULO</h3>
+                <p><strong>Marca:</strong> {{ vehiculo.marca_veh }}</p>
+                <p><strong>Modelo:</strong> {{ vehiculo.modelo_veh }}</p>
+                <p><strong>Placa:</strong> {{ vehiculo.placa_veh }}</p>
+                <p><strong>Año:</strong> {{ vehiculo.anio_veh }}</p>
+                <p><strong>Color:</strong> {{ vehiculo.color_veh }}</p>
+            </div>
+        </section>
+        <section class="servicios">
+            <h3>DESCRIPCIÓN DE SERVICIOS</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for servicio in servicios %}
+                    <tr>
+                        <td>{{ servicio.servicio_id.nombre_ser }}</td>
+                        <td>{{ servicio.servicio_id.precio_ser }}</td>
+                        <td>{{ servicio.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="repuestos">
+            <h3>DESCRIPCIÓN DE REPUESTOS</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Valor</th>
+                        <th>Cant.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repuesto in repuestos %}
+                    <tr>
+                        <td>{{ repuesto.nombre_rep }}</td>
+                        <td>{{ repuesto.descripcion_rep }}</td>
+                        <td>{{ repuesto.precio_rep }}</td>
+                        <td>{{ repuesto.cantidad_rep }}</td>
+                        <td>{{ repuesto.subtotal_rep }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <h2 class="total">Total: {{ total }}</h2>
+        </section>
+        <section class="responsable">
+            <h3>RESPONSABLE :</h3>
+             {{orden.usuario_id.nombre}} {{orden.usuario_id.apellido}} </p>
+        </section>
+       
+       
+    </div>
+     <div class="buttons">
+            <button onclick="window.history.back();" class="btn btn-secondary">Volver</button>
+            <button onclick="createPDF();" class="btn btn-primary">Crear PDF</button>
+        </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+       <script>
+        async function createPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const element = document.getElementById('comprobante');
+            const canvas = await html2canvas(element, { scale: 2 });
+
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const totalPdfHeight = pdf.internal.pageSize.getHeight();
+            let remainingPdfHeight = pdfHeight;
+            let position = 0;
+
+            if (remainingPdfHeight <= totalPdfHeight) {
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+            } else {
+                while (remainingPdfHeight > 0) {
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    remainingPdfHeight -= totalPdfHeight;
+                    if (remainingPdfHeight > 0) {
+                        pdf.addPage();
+                        position -= totalPdfHeight;
+                    }
+                }
+            }
+
+            pdf.save('comprobante_orden_{{orden.numero_ord}}.pdf');
+        }
+    </script>
+</body>
+</html>

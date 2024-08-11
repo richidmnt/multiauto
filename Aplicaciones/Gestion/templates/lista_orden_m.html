@@ -1,0 +1,91 @@
+{% extends "./prueba.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-danger">
+          <div class="card-header">
+            <h3 class="card-title">Lista de Órdenes Pendientes</h3>
+          </div>
+          <div class="card-body">
+            {% if ordenes_con_servicios %}
+              <div class="row">
+                {% for orden, servicios in ordenes_con_servicios %}
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-header bg-danger">
+                      <h3 class="card-title text-white"><i class="fas fa-file-alt"></i> ORDEN: {{ orden.numero_ord }}</h3>
+                    </div>
+                    <div class="card-body">
+                      <p><strong><i class="fas fa-user"></i> Datos del Cliente:</strong></p>
+                      <p><strong>Nombre:</strong> {{ orden.vehiculo_id.cli_id.nombre_cli }}</p>
+                      <p><strong>Apellido:</strong> {{ orden.vehiculo_id.cli_id.apellido_cli }}</p>
+                      <p><strong>Teléfono:</strong> {{ orden.vehiculo_id.cli_id.telefono_cli }}</p>
+                      <p><strong><i class="fas fa-car-side"></i>Datos del Vehículo:</strong></p>
+                      <ul>
+                        <li><strong><i class="fas fa-car"></i> Placa:</strong> {{ orden.vehiculo_id.placa_veh }}</li>
+                        <li><strong><i class="fas fa-industry"></i> Marca:</strong> {{ orden.vehiculo_id.marca_veh }}</li>
+                        <li><strong><i class="fas fa-cogs"></i> Modelo:</strong> {{ orden.vehiculo_id.modelo_veh }}</li>
+                      </ul>
+                      <p><i class="fas fa-check"></i><strong>Servicios:</strong></p>
+                      <ul>
+                        {% for orden_servicio in servicios %}
+                        <li type="">{{ orden_servicio.servicio_id.nombre_ser }}</li>
+                        {% endfor %}
+                      </ul>
+                      <p><i class="fas fa-exclamation-triangle"></i><strong>Observaciones:</strong> {{ orden.observaciones_ord }}</p>
+                      <p><i class="fas fa-calendar"></i><strong>Fecha de la Orden:</strong> {{ orden.fecha_ord|date:"d/m/Y" }}</p>
+                      <form id="aceptar-orden-form-{{ orden.id_ord }}" action="{% url 'aceptar_orden' orden.id_ord %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                      </form>
+                      <button onclick="confirmarAceptarOrden({{ orden.id_ord }})" class="btn btn-danger btn-block">Aceptar Orden</button>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="alert alert-danger" role="alert">
+ <i class="fas fa-exclamation"></i> No existen ordenes pendientes.
+</div>
+            {% endif %}
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+
+<script>
+  function confirmarAceptarOrden(id_ord) {
+    iziToast.question({
+      timeout: 20000,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'question',
+      zindex: 999,
+      title: 'Confirmación',
+      message: '¿Estás seguro de aceptar la orden?',
+      position: 'center',
+      buttons: [
+        ['<button><b>SI</b></button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+          document.getElementById(`aceptar-orden-form-${id_ord}`).submit();
+        }, true],
+        ['<button>NO</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }],
+      ]
+    });
+  }
+</script>
+
+{% endblock %}

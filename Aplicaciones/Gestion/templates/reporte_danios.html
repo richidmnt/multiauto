@@ -1,0 +1,267 @@
+{% extends "./prueba.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card card-secondary">
+          <div class="card-header">
+            <h3 class="card-title">Actualizar Inspección</h3>
+          </div>
+          <div class="card-body">
+            <form id="daniosForm" method="post" action="/actualizarDaniosM/">
+              {% csrf_token %}
+              <input type="hidden" name="id_ins" value="{{ inspeccion.id_ins }}">
+              <div class="form-group">
+                <input type="hidden" name="orden_id" value="{{ inspeccion.orden_id.id_ord }}">
+                <h3 class=""><i class="fas fa-file-alt"></i> ORDEN: {{ inspeccion.orden_id.numero_ord }}</h3>
+                <p><strong><i class="fas fa-car-side"></i> Datos del Vehículo:</strong></p>
+                <ul>
+                  <li><strong><i class="fas fa-car"></i> Placa:</strong> {{ inspeccion.orden_id.vehiculo_id.placa_veh }}
+                  </li>
+                  <li><strong><i class="fas fa-industry"></i> Marca:</strong> {{
+                    inspeccion.orden_id.vehiculo_id.marca_veh }}</li>
+                  <li><strong><i class="fas fa-cogs"></i> Modelo:</strong> {{ inspeccion.orden_id.vehiculo_id.modelo_veh
+                    }}</li>
+                </ul>
+              </div>
+              <div class="card card-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                  <h4 class="card-title">Estado Vehículo</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="km" class="form-label">Kilometraje:</label>
+                    <input type="number" class="form-control" id="km" name="km" value="{{ inspeccion.km }}" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="nivel_gasolina" class="form-label">Nivel de Gasolina:</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>E</span>
+                      <input type="range" class="form-control-range" id="nivel_gasolina" name="nivel_gasolina" min="0"
+                        max="100" step="25" value="{{ inspeccion.nivel_gasolina }}"
+                        oninput="updateGasolinaLabel(this.value)" required />
+                      <span>F</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                      <span>0%</span>
+                      <span>25%</span>
+                      <span>50%</span>
+                      <span>75%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+            
+              <div class="card card-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                  <h4 class="card-title">Registrar Daños</h4>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                  <div id="carImageContainer">
+                    <img id="carImage" src="{% static 'lib/adminlte/img/reporte.webp' %}" alt="Diagrama del Vehículo"
+                      class="img-fluid" />
+                    <div id="markerContainer"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-start mt-3">
+                <button type="button" onclick="actualizar()" class="btn btn-primary">
+                  Actualizar Daños
+                </button>
+                <a href="{% url 'listarInspeccionM' %}" class="btn btn-danger ml-2">Cancelar</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  function actualizar() {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de actualizar la información de la inspección?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            document.getElementById('daniosForm').submit();
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+</script>
+<script>
+  let markerCount = 0;
+  const carImage = document.getElementById("carImage");
+  const markerContainer = document.getElementById("markerContainer");
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const danios = {{ danios| safe
+  }};
+  danios.forEach(danio => {
+    addMarker(danio.id_dan, danio.x_pos, danio.y_pos, danio.descripcion_dan);
+  });
+  });
+
+  carImage.addEventListener("click", (e) => {
+    const rect = carImage.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    addMarker(null, x, y);
+  });
+
+  function addMarker(id, x, y, description = '') {
+    const marker = document.createElement("div");
+    marker.className = "marker";
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+    marker.dataset.id = id || `marker-${Date.now()}`;
+
+    const icon = document.createElement("i");
+    icon.className = "fas fa-times-circle"; // Icono de X roja
+    marker.appendChild(icon);
+
+    marker.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showCommentBox(marker, x, y, description);
+    });
+    markerContainer.appendChild(marker);
+
+    if (description) {
+      showCommentBox(marker, x, y, description);
+    }
+  }
+
+  function showCommentBox(marker, x, y, description = '') {
+    const existingCommentBoxes = document.querySelectorAll(".comment-box");
+    existingCommentBoxes.forEach((box) => (box.style.display = "none"));
+
+    let commentBox = marker.nextElementSibling;
+    if (!commentBox || !commentBox.classList.contains("comment-box")) {
+      commentBox = document.createElement("div");
+      commentBox.className = "comment-box p-2";
+      commentBox.style.left = `${x + 2}%`;
+      commentBox.style.top = `${y}%`;
+      commentBox.innerHTML = `
+        <textarea class="form-control mb-2" placeholder="Describa el daño">${description}</textarea>
+        <button class="btn btn-success btn-sm mr-2" onclick="saveComment(event, this, ${x}, ${y})">Guardar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteMarker(event, '${marker.dataset.id}', this)">Eliminar</button>
+      `;
+      markerContainer.appendChild(commentBox);
+    }
+    commentBox.style.display = "block";
+  }
+
+  function saveComment(event, button, x, y) {
+    event.preventDefault();
+    const commentBox = button.parentElement;
+    const textarea = commentBox.querySelector("textarea");
+    const description = textarea.value;
+
+    const form = document.getElementById("daniosForm");
+    const inputId = document.createElement("input");
+    inputId.type = "hidden";
+    inputId.name = "id_dan[]";
+    inputId.value = button.closest(".comment-box").previousElementSibling.dataset.id;
+
+    const inputX = document.createElement("input");
+    inputX.type = "hidden";
+    inputX.name = "x_pos[]";
+    inputX.value = x;
+
+    const inputY = document.createElement("input");
+    inputY.type = "hidden";
+    inputY.name = "y_pos[]";
+    inputY.value = y;
+
+    const inputDescription = document.createElement("input");
+    inputDescription.type = "hidden";
+    inputDescription.name = "descripcion_dan[]";
+    inputDescription.value = description;
+
+    form.appendChild(inputId);
+    form.appendChild(inputX);
+    form.appendChild(inputY);
+    form.appendChild(inputDescription);
+
+    iziToast.success({
+      title: 'Guardado',
+      message: `Comentario guardado: ${description}`,
+      position: 'topRight'
+    });
+    commentBox.style.display = "none";
+  }
+
+  function confirmDeleteMarker(event, markerId, button) {
+    event.preventDefault();
+    iziToast.question({
+      timeout: 20000,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'question',
+      zindex: 999,
+      title: 'Confirmación',
+      message: '¿Está seguro de que desea eliminar este marcador?',
+      position: 'center',
+      buttons: [
+        ['<button><b>SI</b></button>', function (instance, toast) {
+          deleteMarker(markerId, button);
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }, true],
+        ['<button>NO</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }]
+      ],
+    });
+  }
+
+  function deleteMarker(markerId, button) {
+    const commentBox = button.parentElement;
+    const marker = document.querySelector(`[data-id='${markerId}']`);
+    marker.remove();
+    commentBox.remove();
+
+    // Añadir un input oculto para marcar el marcador como eliminado
+    const form = document.getElementById("daniosForm");
+    const inputDeletedMarkerId = document.createElement("input");
+    inputDeletedMarkerId.type = "hidden";
+    inputDeletedMarkerId.name = "deleted_marker_ids[]";
+    inputDeletedMarkerId.value = markerId;
+    form.appendChild(inputDeletedMarkerId);
+
+    iziToast.success({
+      title: 'Eliminado',
+      message: 'El marcador ha sido eliminado.',
+      position: 'topRight'
+    });
+  }
+</script>
+{% endblock %}

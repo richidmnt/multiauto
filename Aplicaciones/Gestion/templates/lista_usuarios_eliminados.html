@@ -1,0 +1,170 @@
+{% extends "./index.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Lista de Usuarios Eliminados</h3>
+           
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table id="tbl_usuarios" class="table table-head-fixed text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Usuario</th>
+                      <th>Nombre</th>
+                      <th>Apellido</th>
+                      <th>Telefono</th>
+                      <th>Email</th>
+                      <th>Rol</th>
+                      <th>Fecha Eliminación</th>
+                      <th>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for usuario in usuarios %}
+                    <tr class="align-middle">
+                      <td>{{forloop.counter}}</td>
+                      <td>{{usuario.username}}</td>
+                      <td>{{usuario.nombre}}</td>
+                      <td>{{usuario.apellido}}</td>
+                      <td>{{usuario.telefono}}</td>
+                      <td>{{usuario.email}}</td>
+                      <td>{{usuario.rol}}</td>
+                      <td>{{ usuario.deleted_at }}</td>
+                      <td>
+                        <button onclick="restaurarUsuario('{{ usuario.id_usr }}')" class="btn btn-warning" title="Restaurar">
+                          <i class="fas fa-undo"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer"></div>
+          <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function restaurarUsuario(id) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de restaurar el usuario seleccionado?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = `/restaurar_usuario/${id}/`;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+</script>
+
+{% endblock %}
+{% block extra_scripts %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    if (!$.fn.dataTable.isDataTable("#tbl_usuarios")) {
+      $("#tbl_usuarios").DataTable({
+        dom: "Bfrtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          sProcessing: "Procesando...",
+          sLengthMenu: "Mostrar _MENU_ registros",
+          sZeroRecords: "No se encontraron resultados",
+          sEmptyTable: "Ningún dato disponible en esta tabla",
+          sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+          sInfoPostFix: "",
+          sSearch: "Buscar:",
+          sUrl: "",
+          sInfoThousands: ",",
+          sLoadingRecords: "Cargando...",
+          oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior",
+          },
+          oAria: {
+            sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+            sSortDescending: ": Activar para ordenar la columna de manera descendente",
+          },
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "Reporte MultiAuto.",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4, 5, 6], // Indica las columnas a exportar (ID, Usuario, Nombre, Email)
+            } 
+          },
+          {
+            extend: "print",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4, 5, 6], // Indica las columnas a exportar (ID, Usuario, Nombre, Email)
+            } 
+          },
+          {
+            extend: "excelHtml5",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4, 5, 6], // Indica las columnas a exportar (ID, Usuario, Nombre, Email)
+            } 
+          },
+        ],
+         rowCallback: function (row, data, index) {
+          var api = this.api();
+          var pageInfo = api.page.info();
+          var rowIndex = pageInfo.start + index + 1;
+          $('td:eq(0)', row).html(rowIndex); // Actualiza la columna de numeración
+        }
+      }).buttons().container().appendTo("#tbl_usuarios_wrapper .col-md-6:eq(0)");
+    }
+  });
+</script>
+{% endblock %}

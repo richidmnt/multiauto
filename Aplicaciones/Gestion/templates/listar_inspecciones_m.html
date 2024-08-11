@@ -1,0 +1,177 @@
+{% extends "./prueba.html" %} {% load static %} {% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="card-title">Lista de Inspecciones</h3>
+   
+</div>     
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table
+                  id="tbl_danios"
+                  class="table table-head-fixed text-nowrap"
+                >
+                  <thead>
+                    <tr>
+                      <td>#</td>
+                      <th>Número de Orden</th>
+                      <th>Placa del Vehículo</th>
+                      <th>Fecha de Orden</th>
+
+                      <th>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for danio in danios %}
+                    <tr class="align-middle">
+                      <td> {{forloop.counter}} </td>
+                      <td>{{ danio.orden_id.numero_ord }}</td>
+                      <td>{{ danio.orden_id.vehiculo_id.placa_veh }}</td>
+                      <td>{{ danio.orden_id.fecha_ord }}</td>
+
+                      <td>
+                        <a
+                          href="/editar_inspeccion_m/{{ danio.id_ins}}/"
+                          title="Editar"
+                          class="btn btn-warning"
+                          ><i class="fas fa-pen"></i></a
+                        >
+                       
+                        <a
+                          href="#"
+                          title="Eliminar"
+                          onclick="eliminar('/eliminar_inspeccion_m/{{ danio.id_ins}}/')"
+                          class="btn btn-danger"
+                          ><i class="fas fa-trash"></i></a
+                        >
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer">
+            
+          </div>
+          <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function eliminar(url) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de eliminar la inspección seleccionada?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = url;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+  function mostrarMensaje() {
+    iziToast.success({
+      title: "OK",
+      message: "¡Registro insertado con éxito!",
+      position: "topRight",
+    });
+  }
+</script>
+
+
+{% endblock %} {% block extra_scripts %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    if (!$.fn.dataTable.isDataTable("#tbl_danios")) {
+      $("#tbl_danios").DataTable({
+        dom: "frtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          
+          sProcessing: "Procesando...",
+          sLengthMenu: "Mostrar _MENU_ registros",
+          sZeroRecords: "No se encontraron resultados",
+          sEmptyTable: "Ningún dato disponible en esta tabla",
+          sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+          sInfoPostFix: "",
+          sSearch: "Buscar:",
+          sUrl: "",
+          sInfoThousands: ",",
+          sLoadingRecords: "Cargando...",
+          oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior",
+          },
+          oAria: {
+            sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+            sSortDescending: ": Activar para ordenar la columna de manera descendente",
+          },
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "PDF creado por PDFMake con botones para DataTables.",
+            className: "btn btn-warning", // Agregar clase de estilo de Bootstrap
+          },
+          {
+            extend: "print",
+            className: "btn btn-warning", // Agregar clase de estilo de Bootstrap
+          },
+          {
+            extend: "csv",
+            className: "btn btn-warning", // Agregar clase de estilo de Bootstrap
+          },
+        ],
+         rowCallback: function (row, data, index) {
+          var api = this.api();
+          var pageInfo = api.page.info();
+          var rowIndex = pageInfo.start + index + 1;
+          $('td:eq(0)', row).html(rowIndex); // Actualiza la columna de numeración
+        }
+      }).buttons().container().appendTo("#tbl_danios_wrapper .col-md-6:eq(0)");
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends "./index.html" %} {% load static %} 
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card">
+          
+          <div class="card-body">
+            <div class="row justify-content-center">
+              <div class="col-lg-12">
+                <div class="card card-secondary">
+                  <div class="card-header text-center">
+                    <h2 class="card-title ">Registrar Usuario</h2>
+                  </div>
+                  <div class="card-body">
+                    <form id="usuarioForm" action="/registrar_usuario/" method="post">
+                      {% csrf_token %}
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="id_username" class="form-label">Nombre de Usuario:</label>
+                          <input type="text" class="form-control" id="id_username" name="username" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="id_nombre" class="form-label">Nombre:</label>
+                          <input type="text" class="form-control" id="id_nombre" name="nombre" required />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="id_apellido" class="form-label">Apellido:</label>
+                          <input type="text" class="form-control" id="id_apellido" name="apellido" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="id_telefono" class="form-label">Teléfono:</label>
+                          <input type="text" class="form-control" id="id_telefono" name="telefono" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="id_email" class="form-label">Correo Electrónico:</label>
+                          <input type="email" class="form-control" id="id_email" name="email" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="id_password" class="form-label">Contraseña:</label>
+                          <div class="input-group">
+                            <input type="password" class="form-control" id="id_password" name="password" required />
+                            <div class="input-group-append">
+                              <span class="input-group-text" onclick="togglePasswordVisibility('id_password', 'password-icon')">
+                                <i class="fas fa-eye" id="password-icon"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="id_confirm_password" class="form-label">Confirmar Contraseña:</label>
+                          <div class="input-group">
+                            <input type="password" class="form-control" id="id_confirm_password" name="confirm_password" required />
+                            <div class="input-group-append">
+                              <span class="input-group-text" onclick="togglePasswordVisibility('id_confirm_password', 'confirm-password-icon')">
+                                <i class="fas fa-eye" id="confirm-password-icon"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="id_rol" class="form-label">Rol:</label>
+                          <select class="form-control select2" id="id_rol" name="rol" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="ADMINISTRADOR">Administrador</option>
+                            <option value="MECANICO">Mecánico</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="id_is_active" name="is_active" checked />
+                        <label class="form-check-label" for="id_is_active">Activo</label>
+                      </div>
+                      <div class="d-flex justify-content-start">
+                        <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+                        <a href="{% url 'index1' %}" class="btn btn-danger ml-2">Cancelar</a>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+ {% block extra_scripts %}
+<script>
+  function togglePasswordVisibility(fieldId, iconId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+
+    if (field.type === "password") {
+      field.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      field.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  }
+  $.validator.addMethod("validarCorreoElectronico", function(value, element) {
+            // Expresión regular para validar el formato del correo electrónico
+            return this.optional(element) || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+        }, "Por favor, ingrese un correo electrónico válido.");
+
+        $.validator.addMethod("validarCedulaEcuatoriana", function(value, element) {
+            // Longitud válida y que sean números
+            if (value.length !== 10 || isNaN(value))
+                return false;
+
+            // Provincias válidas en Ecuador
+            var provinciasValidas = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
+
+            // Verificar si los primeros dos dígitos corresponden a una provincia válida
+            var provincia = value.substring(0, 2);
+            if (provinciasValidas.indexOf(provincia) === -1)
+                return false;
+
+            // Obtenemos el dígito verificador esperado
+            var digitoVerificadorEsperado = parseInt(value[9]);
+
+            // Calculamos el dígito verificador
+            var coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+            var suma = 0;
+            for (var i = 0; i < coeficientes.length; i++) {
+                var resultado = parseInt(value[i]) * coeficientes[i];
+                suma += resultado >= 10 ? resultado - 9 : resultado;
+            }
+            var residuo = suma % 10;
+            var digitoVerificadorCalculado = residuo !== 0 ? 10 - residuo : 0;
+
+            // Verificamos si el dígito verificador ingresado es igual al calculado
+            return digitoVerificadorEsperado === digitoVerificadorCalculado;
+        }, "Ingrese una cédula ecuatoriana válida");
+  $.validator.addMethod("validarInicioTelefono", function(value, element) {
+            return value.startsWith("09");
+        }, "El número de teléfono debe comenzar con '09'.");
+  $.validator.addMethod(
+    "nospace",
+    function (value, element) {
+      return value.indexOf(" ") < 0;
+    },
+    "El nombre de usuario no debe contener espacios"
+  );
+
+  $("#usuarioForm").validate({
+    rules: {
+      username: {
+        required: true,
+        minlength: 3,
+        maxlength: 50,
+        nospace :true
+      },
+      nombre: {
+        required: true,
+        minlength: 3,
+        maxlength:100,
+        lettersonly: true,
+      },
+      apellido: {
+        required: true,
+        minlength: 3,
+        maxlength:100,
+        lettersonly: true,
+      },
+      telefono: {
+        digits: true,
+        minlength: 10,
+        maxlength: 10,
+        validarInicioTelefono:true
+      },
+      email: {
+        required: true,
+        email: true,
+        validarCorreoElectronico:true
+      },
+      password: {
+        required: true,
+        minlength: 8,
+      },
+      confirm_password: {
+        required: true,
+        equalTo: "#id_password",
+      },
+      rol: {
+        required: true,
+      },
+    },
+    messages: {
+      username: {
+        required: "Por favor, ingresa un nombre de usuario",
+        minlength: "El nombre de usuario debe tener al menos 3 caracteres",
+        maxlength: "El nombre de usuario no puede tener más de 50 caracteres",
+        nospace :"El nombre de usuario no debe contener espacios"
+      },
+      nombre: {
+        required: "Por favor, ingresa el nombre",
+        minlength: "El nombre debe tener al menos 3 letras",
+        minlength: "El nombre debe tener máximo 100 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      apellido: {
+        required: "Por favor, ingresa el apellido",
+        minlength: "El apellido debe tener al menos 3 letras",
+        maxlength: "El apellido debe tener máximo 100 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      telefono: {
+        digits: "Por favor, ingresa solo números",
+        minlength: "El teléfono debe tener 10 dígitos",
+        maxlength: "El teléfono no puede tener más de 10 dígitos",
+        validarInicioTelefono:"El número de teléfono debe comenzar con '09'."
+      },
+      email: {
+        required: "Por favor, ingresa un correo electrónico",
+        email: "Por favor, ingresa un correo electrónico válido",
+        validarCorreoElectronico:"Por favor,ingrea un correo electrónico válido"
+      },
+      password: {
+        required: "Por favor, ingresa una contraseña",
+        minlength: "La contraseña debe tener al menos 8 caracteres",
+      },
+      confirm_password: {
+        required: "Por favor, confirma la contraseña",
+        equalTo: "Las contraseñas no coinciden",
+      },
+      rol: {
+        required: "Por favor, selecciona un rol",
+      },
+    },
+    errorElement: "span",
+    errorPlacement: function (error, element) {
+      error.addClass("invalid-feedback");
+      element.closest(".form-group").append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass("is-invalid").removeClass("is-valid");
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass("is-invalid").addClass("is-valid");
+    },
+  });
+
+  // Custom validator for letters only
+  $.validator.addMethod(
+    "lettersonly",
+    function (value, element) {
+      return this.optional(element) || /^[a-zA-Z\s]+$/i.test(value);
+    },
+    "Por favor, ingresa solo letras"
+  );
+</script>
+{% endblock %}

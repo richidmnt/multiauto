@@ -1,0 +1,567 @@
+{% extends "./index.html" %}
+
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">
+            <h3 class="card-title">Registrar Orden</h3>
+          </div>
+          <div class="card-body">
+            <form id="ordenForm" method="post" action="/registrar_orden/">
+              {% csrf_token %}
+              <div class="row">
+                <!-- Cliente -->
+                <div class="col-lg-4 col-md-6">
+                  <div class="card card-info mb-3">
+                    <div class="card-header bg-secondary text-white">
+                      <h4 class="card-title">Registrar Cliente</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="nombre_cli" class="form-label">Nombre:</label>
+                          <input type="text" class="form-control" id="nombre_cli" name="nombre_cli" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="apellido_cli" class="form-label">Apellido:</label>
+                          <input type="text" class="form-control" id="apellido_cli" name="apellido_cli" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="ci_cli" class="form-label">Cédula:</label>
+                          <input type="text" class="form-control" id="ci_cli" name="ci_cli" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="telefono_cli" class="form-label">Teléfono:</label>
+                          <input type="text" class="form-control" id="telefono_cli" name="telefono_cli" required />
+                        </div>
+                        <div class="form-group col-md-12">
+                          <label for="email_cli" class="form-label">Correo Electrónico:</label>
+                          <input type="email" class="form-control" id="email_cli" name="email_cli" required />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Dirección -->
+                <div class="col-lg-4 col-md-6">
+                  <div class="card card-success mb-3">
+                    <div class="card-header bg-secondary text-white">
+                      <h4 class="card-title">Registrar Dirección</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-row">
+                        <div class="form-group col-md-12">
+                          <label for="ciudad_dir" class="form-label">Ciudad:</label>
+                          <input type="text" class="form-control" id="ciudad_dir" name="ciudad_dir" required />
+                        </div>
+                        <div class="form-group col-md-12">
+                          <label for="barrio_dir" class="form-label">Barrio:</label>
+                          <input type="text" class="form-control" id="barrio_dir" name="barrio_dir" required />
+                        </div>
+                        <div class="form-group col-md-12">
+                          <label for="calle_dir" class="form-label">Calle:</label>
+                          <input type="text" class="form-control" id="calle_dir" name="calle_dir"   required/>
+                        </div>
+                      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Vehículo -->
+                <div class="col-lg-4 col-md-6">
+                  <div class="card card-warning mb-3">
+                    <div class="card-header bg-warning text-white">
+                      <h4 class="card-title">Registrar Vehículo</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="marca_veh" class="form-label">Marca:</label>
+                          <input type="text" class="form-control" id="marca_veh" name="marca_veh" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="modelo_veh" class="form-label">Modelo:</label>
+                          <input type="text" class="form-control" id="modelo_veh" name="modelo_veh" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="placa_veh" class="form-label">Placa:</label>
+                          <input type="text" class="form-control" id="placa_veh" name="placa_veh" required />
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="anio_veh" class="form-label">Año:</label>
+                          <input type="number" class="form-control" id="anio_veh" name="anio_veh" required />
+                        </div>
+                       
+                        <div class="form-group col-md-6">
+                          <label for="color_veh" class="form-label">Color:</label>
+                          <input type="text" class="form-control" id="color_veh" name="color_veh" required />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Orden -->
+              <div class="card card-primary mb-3">
+                <div class="card-header bg-secondary text-white">
+                  <h4 class="card-title">Registrar Orden</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="fecha_ord" class="form-label">Fecha de la Orden:</label>
+                      <input type="datetime-local" class="form-control" id="fecha_ord" name="fecha_ord" readonly />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="numero_ord" class="form-label">Número de Orden:</label>
+                    <input type="number" class="form-control" id="numero_ord" name="numero_ord" value="{{ next_numero_ord }}" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="observaciones_ord" class="form-label">Observaciones:</label>
+                    <textarea class="form-control" id="observaciones_ord" name="observaciones_ord" rows="3" required></textarea>
+                  </div>
+                  <div class="form-group ">
+                    <label for="estado_ord" class="form-label">Estado:</label>
+                    <select class="form-control select2" id="estado_ord" name="estado_ord" required>
+                      {% for key, value in ESTADOS %}
+                      <option value="{{ key }}">{{ value }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="usuario_id" class="form-label">Mecánico responsable:</label>
+                    <select class="form-control select2" id="usuario_id" name="usuario_id" required>
+                      <option value="">Seleccione un usuario</option>
+                      {% for usuario in usuarios %}
+                      <option value="{{ usuario.id_usr }}">{{ usuario.nombre }} {{ usuario.apellido }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Servicios -->
+              <div class="card card-primary mb-3">
+                <div class="card-header bg-secondary text-white">
+                  <h4 class="card-title">Servicios</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Servicio</th>
+                          <th>Precio</th>
+                          <th>Subtotal</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody id="serviciosTableBody">
+                        <tr>
+                          <td>
+                            <select class="form-control select2 servicio-select" name="servicio_id[]" onchange="updateSubtotal(this)" required>
+                              <option value="">Seleccione un servicio</option>
+                              {% for servicio in servicios %}
+                              <option value="{{ servicio.id_ser }}" data-precio="{{ servicio.precio_ser }}" data-nombre="{{ servicio.nombre_ser }}">{{ servicio.nombre_ser }}</option>
+                              {% endfor %}
+                            </select>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control precio" readonly />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control subtotal" name="subtotal[]" readonly />
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <button type="button" class="btn btn-success mt-2" onclick="addRow()">Agregar Servicio</button>
+                  <div class="form-group mt-3">
+                    <label for="total" class="form-label">Total:</label>
+                    <input type="text" class="form-control" id="total" name="total" readonly />
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-start mt-3">
+                <button type="submit" class="btn btn-primary p-2">Registrar Orden</button>
+                <a href="{% url 'listarOrdenes' %}" class="btn btn-danger ml-3">Cancelar</a>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+  .select2-container {
+    width: 100% !important;
+  }
+</style>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var fechaOrdInput = document.getElementById("fecha_ord");
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, "0");
+    var day = String(now.getDate()).padStart(2, "0");
+    var hour = String(now.getHours()).padStart(2, "0");
+    var minute = String(now.getMinutes()).padStart(2, "0");
+    var localDatetime = year + "-" + month + "-" + day + "T" + hour + ":" + minute;
+    fechaOrdInput.value = localDatetime;
+
+    initializeSelect2(); // Inicializar Select2 para los campos al cargar la página
+  });
+
+  function updateSubtotal(selectElement) {
+    var row = selectElement.closest("tr");
+    var precio = selectElement.options[selectElement.selectedIndex].dataset.precio;
+    var subtotalInput = row.querySelector(".subtotal");
+    var precioInput = row.querySelector(".precio");
+
+    precioInput.value = precio;
+    subtotalInput.value = precio;
+
+    updateTotal();
+  }
+
+  function updateTotal() {
+    var total = 0;
+    document.querySelectorAll(".subtotal").forEach(function (subtotalInput) {
+      total += parseFloat(subtotalInput.value) || 0;
+    });
+    document.getElementById("total").value = total.toFixed(2);
+  }
+
+  function addRow() {
+    var newRow = `<tr>
+      <td>
+        <select class="form-control select2 servicio-select" name="servicio_id[]" onchange="updateSubtotal(this)" required>
+          <option value="">Seleccione un servicio</option>
+          {% for servicio in servicios %}
+            <option value="{{ servicio.id_ser }}" data-precio="{{ servicio.precio_ser }}" data-nombre="{{ servicio.nombre_ser }}">{{ servicio.nombre_ser }}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td>
+        <input type="text" class="form-control precio" readonly />
+      </td>
+      <td>
+        <input type="text" class="form-control subtotal" name="subtotal[]" readonly />
+      </td>
+      <td>
+        <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+      </td>
+    </tr>`;
+    document.getElementById("serviciosTableBody").insertAdjacentHTML("beforeend", newRow);
+    initializeSelect2(); // Inicializar Select2 para el nuevo campo
+  }
+
+  function removeRow(button) {
+    button.closest("tr").remove();
+    updateTotal();
+  }
+
+  function initializeSelect2() {
+    $(".select2").select2({
+      allowClear: true,
+      placeholder: "Seleccione una opción"
+    });
+  }
+
+  document.getElementById('ordenForm').addEventListener('submit', function (e) {
+    var servicioSelects = document.querySelectorAll('.servicio-select');
+    var servicios = [];
+    var duplicado = false;
+    var duplicadoNombre = "";
+
+    servicioSelects.forEach(function (select) {
+      var servicioId = select.value;
+      var servicioNombre = select.options[select.selectedIndex].dataset.nombre;
+      if (servicios.includes(servicioId)) {
+        duplicado = true;
+        duplicadoNombre = servicioNombre;
+      }
+      servicios.push(servicioId);
+    });
+
+    if (duplicado) {
+      e.preventDefault();
+      iziToast.error({
+        title: 'Error',
+        message: `El servicio "${duplicadoNombre}" ya está agregado.`,
+        position: 'topRight'
+      });
+    }
+  });
+
+  $(document).ready(function() {
+    $("#ordenForm").validate({
+      rules: {
+        nombre_cli: {
+        required: true,
+        minlength: 3,
+        maxlength:50,
+        lettersonly:true
+      },
+      apellido_cli: {
+        required: true,
+        minlength: 3,
+        maxlength:50,
+        lettersonly:true
+      },
+      ci_cli: {
+        digits:true,
+        minlength: 10,
+        maxlength:  10,
+        validarCedulaEcuatoriana:true
+      },
+      telefono_cli: {
+        digits: true,
+        minlength: 10,
+        maxlength: 10,
+        validarInicioTelefono:true
+      },
+      email_cli: {
+        required: true,
+        email: true,
+        validarCorreoElectronico:true
+      },
+      ciudad_dir: {
+        required:true,
+        minlength: 3,
+        maxlength:50,
+        lettersonly:true
+      },
+      barrio_dir: {
+        required:true,
+        minlength: 3,
+        maxlength:50,
+        lettersonly:true
+      },
+      calle_dir: {
+        required:true,
+        minlength: 3,
+        maxlength:50,
+      },
+      marca_veh: {
+          required: true,
+          minlength: 3,
+          maxlength:30,
+          lettersonly:true
+        },
+        modelo_veh: {
+          required: true,
+          minlength: 2,
+          maxlength: 50
+        },
+        placa_veh: {
+          required: true,
+          placaEcuador: true,
+        },
+        anio_veh: {
+          required: true,
+          digits: true,
+          minlength: 4,
+          maxlength: 4,
+        },
+        chasis_veh: {
+          required: true,
+          minlength: 17,
+          maxlength:17
+        },
+        color_veh: {
+          required: true,
+          minlength: 4,
+          maxlength: 25,
+          lettersonly:true
+        },
+        observaciones_ord: {
+          required: true,
+          minlength: 10,
+          maxlength: 200
+        },
+        estado_ord: {
+          required: true
+        },
+        usuario_id: {
+          required: true
+        },
+        "servicio_id[]": {
+          required: true
+        }
+      },
+      messages: {
+        nombre_cli: {
+        required: "Por favor, ingresa el nombre",
+        minlength: "El nombre debe tener al menos 3 letras",
+        minlength: "El nombre debe tener máximo 50 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      apellido_cli: {
+        required: "Por favor, ingresa el nombre",
+        minlength: "El apellido debe tener al menos 3 letras",
+        minlength: "El apellido debe tener máximo 50 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      ci_cli: {
+        required: "Por favor, ingresa la cédula",
+        digits: "Por favor, ingresa solo números",
+        minlength: "La cédula debe tener al menos 10 caracteres",
+        maxlength: "La cédula no puede tener más de 10 caracteres",
+        validarCedulaEcuatoriana:"Ingrese una cédula ecuatoriana válida"
+
+      },
+      telefono_cli: {
+        required: "Por favor, ingresa el télefono",
+        digits: "Por favor, ingresa solo números",
+        minlength: "El teléfono debe tener al menos 10 dígitos",
+        maxlength: "El teléfono no puede tener más de 10 dígitos",
+        validarInicioTelefono:"El número de teléfono debe comenzar con '09'."
+      },
+      email_cli: {
+        required: "Por favor, ingresa el correo electrónico del cliente",
+        email: "Por favor, ingresa un correo electrónico válido",
+        validarCorreoElectronico:"Por favor,ingrea un correo electrónico válido"
+      },
+      ciudad_dir: {
+        required:"Por favor, ingresa la ciudad",
+        minlength: "La ciudad debe tener al menos 3 letras",
+        maxlength: "La ciudad  no puede tener más de 50 letras",
+        lettersonly:"Por favor, ingresa solo letras."
+      },
+      barrio_dir: {
+        required:"Por favor, ingresa  el barrio",
+        minlength: "El barrio debe tener al menos 3 letras",
+        maxlength: "El barrio  no puede tener más de 50 letras",
+        lettersonly:"Por favor, ingresa solo letras."
+      },
+      calle_dir: {
+        required: "Por favor, ingresa  la calle.",
+        minlength: "La calle debe tener al menos 3 letras",
+        maxlength: "La calle  no puede tener más dee 50 letras",
+        
+      },
+      marca_veh: {
+          required: "Por favor, ingresa la marca del vehículo",
+          minlength: "La marca debe tener al menos 3 caracteres",
+          maxlength:"La marca debe tener máximo 30 caracteres",
+          lettersonly:"Por favor, ingresa solo letras"
+        },
+        modelo_veh: {
+          required: "Por favor, ingresa el modelo del vehículo",
+          minlength: "El modelo debe tener al menos 2 caracteres",
+          maxlength: "El modelo debe tener máximo 50 caracteres"
+        },
+        placa_veh: {
+          required: "Por favor, ingresa la placa del vehículo",
+        },
+        anio_veh: {
+          required: "Por favor, ingresa el año del vehículo",
+          digits: "Por favor, ingresa solo números",
+          minlength: "El año debe tener 4 dígitos",
+          maxlength: "El año debe tener 4 dígitos",
+        },
+        chasis_veh: {
+          required: "Por favor, ingresa el chasis del vehículo",
+          minlength: "El chasis debe tener  17 caracteres",
+          maxlength:"El chasis debe tener  17 caracteres",
+        },
+        color_veh: {
+          required: "Por favor, ingresa el color del vehículo",
+          minlength: "El color debe tener al menos 3 caracteres",
+          maxlength:"El color debe tener al menos 25 caracteres",
+          lettersonly:"Por favor, ingresa solo letras"
+        },
+        observaciones_ord: {
+          required: "Por favor, ingrese observaciones",
+          minlength: "Las observaciones deben tener al menos 10 caracteres",
+          maxlength: "Las observaciones no pueden tener más de 200 caracteres"
+        },
+        estado_ord: {
+          required: "Por favor, seleccione un estado"
+        },
+        usuario_id: {
+          required: "Por favor, seleccione un usuario"
+        },
+        "servicio_id[]": {
+          required: "Por favor, seleccione un servicio"
+        }
+      },
+      errorElement: "span",
+      errorPlacement: function (error, element) {
+        error.addClass("invalid-feedback");
+        element.closest("div").append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass("is-invalid").removeClass("is-valid");
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass("is-invalid").addClass("is-valid");
+      }
+    });
+  });
+   $.validator.addMethod(
+    "lettersonly",
+    function (value, element) {
+      return this.optional(element) || /^[a-zA-Z\s]+$/i.test(value);
+    },
+    "Por favor, ingresa solo letras"
+  );
+  $.validator.addMethod("validarCorreoElectronico", function(value, element) {
+            // Expresión regular para validar el formato del correo electrónico
+            return this.optional(element) || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+        }, "Por favor, ingrese un correo electrónico válido.");
+
+  $.validator.addMethod("validarCedulaEcuatoriana", function(value, element) {
+            // Longitud válida y que sean números
+            if (value.length !== 10 || isNaN(value))
+                return false;
+
+            // Provincias válidas en Ecuador
+            var provinciasValidas = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
+
+            // Verificar si los primeros dos dígitos corresponden a una provincia válida
+            var provincia = value.substring(0, 2);
+            if (provinciasValidas.indexOf(provincia) === -1)
+                return false;
+
+            // Obtenemos el dígito verificador esperado
+            var digitoVerificadorEsperado = parseInt(value[9]);
+
+            // Calculamos el dígito verificador
+            var coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+            var suma = 0;
+            for (var i = 0; i < coeficientes.length; i++) {
+                var resultado = parseInt(value[i]) * coeficientes[i];
+                suma += resultado >= 10 ? resultado - 9 : resultado;
+            }
+            var residuo = suma % 10;
+            var digitoVerificadorCalculado = residuo !== 0 ? 10 - residuo : 0;
+
+            // Verificamos si el dígito verificador ingresado es igual al calculado
+            return digitoVerificadorEsperado === digitoVerificadorCalculado;
+        }, "Ingrese una cédula ecuatoriana válida");
+  $.validator.addMethod("validarInicioTelefono", function(value, element) {
+            return value.startsWith("09");
+        }, "El número de teléfono debe comenzar con '09'.");
+  $.validator.addMethod("placaEcuador", function (value, element) {
+      return this.optional(element) || /^[A-Z]{3}-\d{3,4}$|^[A-Z]{1}\d{3}-[A-Z]{2}$/.test(value);
+    }, "Por favor ingrese una placa válida (ej. ABC-1234 o P123-AB)");
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Vehículo</title>
+    <link rel="stylesheet" href="{% static 'lib/adminlte/dist/css/adminlte.min.css' %}">
+    <style>
+        .pendiente { background-color: red; }
+        .en-progreso { background-color: orange; }
+        .esperando-repuestos { background-color: lightblue; }
+        .completada { background-color: green; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Buscar Vehículo</h1>
+        <form method="GET" action="{% url 'buscar_vehiculo' %}">
+            <div class="input-group mb-3">
+                <input type="text" name="q" class="form-control" placeholder="Buscar por cédula o placa" value="{{ query }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                </div>
+            </div>
+        </form>
+
+        {% if vehiculos %}
+            <h2>Resultados de búsqueda</h2>
+            <ul>
+                {% for vehiculo in vehiculos %}
+                    <li>{{ vehiculo.marca_veh }} {{ vehiculo.modelo_veh }} - Placa: {{ vehiculo.placa_veh }}</li>
+                {% endfor %}
+            </ul>
+        {% elif query %}
+            <p>No se encontraron vehículos .</p>
+        {% endif %}
+
+        {% if ordenes %}
+            <h2>Órdenes de Trabajo</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th># Orden</th>
+                        <th>Fecha Orden</th>
+                        <th>Placa</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orden in ordenes %}
+                        <tr class="{% if orden.estado_ord == 'PENDIENTE' %}pendiente{% elif orden.estado_ord == 'EN_PROGRESO' %}en-progreso{% elif orden.estado_ord == 'ESPERANDO_REPUESTOS' %}esperando-repuestos{% elif orden.estado_ord == 'COMPLETADA' %}completada{% endif %}">
+                            <td> {{ orden.numero_ord}} </td>
+                            <td> {{ orden.fecha_ord }} </td>
+                            <td>{{ orden.vehiculo_id.placa_veh }}</td>
+                            <td>{{ orden.vehiculo_id.marca_veh }}</td>
+                            <td>{{ orden.vehiculo_id.modelo_veh }}</td>
+                            <td>{{ orden.get_estado_ord_display }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</body>
+</html>

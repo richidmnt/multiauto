@@ -1,0 +1,261 @@
+{% extends "./index.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Lista de órdenes finalizadas</h3>
+            <a href="{% url 'guardarOrden2' %}" class="btn btn-primary ml-auto">
+                <i class="fa fa-plus nav-icon"></i> Nueva Orden
+            </a>
+          </div>     
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table id="tbl_ordenes" class="table table-head-fixed text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Número de Orden</th>
+                      <th>Fecha de Inicio</th>
+                      <th>Fecha Fin</th>
+                      <th>Cliente</th>
+                      <th>Auto</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                      <th>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for orden in ordenes %}
+                    <tr class="align-middle">
+              
+                      <td>{{ orden.numero_ord }}</td>
+                      <td>{{ orden.fecha_ord|date:"d/m/Y H:i" }}</td>
+                      <td> {{ orden.fecha_fin_ord|date:"d/m/Y H:i"}}</td>
+                      <td>
+                        {{ orden.vehiculo_id.cli_id.nombre_cli }} {{ orden.vehiculo_id.cli_id.apellido_cli }}
+                      </td>
+                      <td>
+                        {{ orden.vehiculo_id.marca_veh }} {{ orden.vehiculo_id.modelo_veh }} {{ orden.vehiculo_id.placa_veh }}
+                      </td>
+                      <td> {{orden.calcular_total|stringformat:'0.2f'}}</td>
+                      <td>
+                        {% if orden.estado_ord == 'PENDIENTE' %}
+                          <span class="badge bg-danger">Pendiente</span>
+                        {% elif orden.estado_ord == 'EN_PROGRESO' %}
+                          <span class="badge bg-warning text-dark">En Progreso</span>
+                        {% elif orden.estado_ord == 'ESPERANDO_REPUESTOS' %}
+                          <span class="badge bg-info text-dark">Esperando Repuestos</span>
+                        {% elif orden.estado_ord == 'COMPLETADA' %}
+                          <span class="badge bg-success">Completada</span>
+                        {% elif orden.estado_ord == 'FINALIZADA' %}
+                          <span class="badge bg-secondary">Finalizada</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="/detalle_orden/{{ orden.id_ord }}/"  title="Detalle" class="btn btn-primary"><i class="fas fa-book"></i></a>
+                        <a href="/obtener_orden/{{ orden.id_ord }}/" title="Editar" class="btn btn-warning"><i class="fas fa-pen"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th>Total</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                  
+            
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer">
+            <!-- Footer Content -->
+          </div>
+          <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function eliminar(url) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de eliminar la orden seleccionada?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = url;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+</script>
+
+
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  /* Ocultar el footer en la vista de la tabla */
+  #tbl_ordenes tfoot {
+    display: none;
+  }
+</style>
+<script>
+  $(document).ready(function () {
+      
+      var table = $("#tbl_ordenes").DataTable({
+        dom: "Bfrtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          // ... (mantén tu configuración de idioma actual)
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "Reporte de Ordenes.",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [ 0,1, 2, 3, 4, 5],
+            },
+            customize: function (doc) {
+              var tbl = $('#tbl_ordenes').DataTable();
+              var footer = $(tbl.table().footer()).clone();
+              var footerData = [];
+              footer.find('th').each(function (i) {
+                if (i <= 5) {  // Solo incluimos las primeras 6 columnas (0-5)
+                  footerData.push($(this).text());
+                }
+              });
+
+              // Añade el footer al final del documento PDF
+              doc.content.push({
+                table: {
+                  widths: ['*', '*', '*', '*', '*', '*'],
+                  body: [footerData]
+                },
+                layout: 'noBorders',
+                margin: [0, 0, 0, 16]
+              });
+            }
+          },
+          {
+            extend: "excelHtml5",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0, 1, 2, 3, 4, 5],
+              footer:true,
+              format: {
+                body: function (data, row, column, node) {
+                  // Si es la columna del total (columna 5), asegúrate de que sea un número
+                  if (column === 5) {
+                    return typeof data === 'number' ? data : data.replace(/[^\d.-]/g, '');
+                  }
+                  return data;
+                }
+              }
+            },
+            customize: function (xlsx) {
+              var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+              // Obtener el total de la columna 5
+              var total = $('#tbl_ordenes').DataTable().column(5).footer().innerHTML;
+              total = total.replace(/[^\d.-]/g, ''); // Eliminar cualquier carácter que no sea número
+
+              // Obtener el número de filas
+              var numrows = $('row', sheet).length;
+
+              // Crear una nueva fila para el footer
+              var newRow = $('<row></row>');
+              newRow.attr('r', numrows + 1);
+
+              // Agregar celdas a la nueva fila
+              for (var i = 0; i <= 5; i++) {
+                var cell = $('<c></c>');
+                cell.attr('r', String.fromCharCode(65 + i) + (numrows + 1));
+
+                if (i === 5) {
+                  // Columna del total
+                  cell.attr('t', 'n');
+                  cell.append($('<v></v>').text(total));
+                } else if (i === 0) {
+                  // Primera columna con texto "Total"
+                  cell.attr('t', 's');
+                  cell.append($('<v></v>').text('Total'));
+                } else {
+                  // Otras columnas vacías
+                  cell.attr('t', 's');
+                  cell.append($('<v></v>').text(''));
+                }
+
+                newRow.append(cell);
+              }
+
+              // Agregar la nueva fila al final de la hoja
+              $('sheetData', sheet).append(newRow);
+            }
+          },
+        ],
+   
+        footerCallback: function (row, data, start, end, display) {
+          var api = this.api();
+
+          var total = api
+            .column(5, { page: 'current' })
+            .data()
+            .reduce(function (a, b) {
+              return parseFloat(a) + parseFloat(b.replace(/[^\d.-]/g, ''));
+            }, 0);
+
+          $(api.column(5).footer()).html('$' + total.toFixed(2));
+        }
+      });
+      
+
+      table.buttons().container().appendTo('#tbl_ordenes_wrapper .col-md-6:eq(0)');
+    });
+
+</script>
+
+
+{% endblock %}

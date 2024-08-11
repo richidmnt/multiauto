@@ -1,0 +1,389 @@
+{% extends "./prueba.html" %}
+{%  load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card card-secondary">
+          <div class="card-header">
+            <h3 class="card-title">Inspección</h3>
+          </div>
+          <div class="card-body">
+            <form id="daniosForm" method="post" action="/guardar_inspeccion_m/">
+              {% csrf_token %}
+              <div class="form-group">
+                <input type="hidden" name="orden" value="{{orden.id_ord}}">
+                <h3 class=""><i class="fas fa-file-alt"></i> ORDEN: {{ orden.numero_ord }}</h3>
+                      <p><strong><i class="fas fa-car-side"></i>Datos del Vehículo:</strong></p>
+                      <ul>
+                        <li><strong><i class="fas fa-car"></i> Placa:</strong> {{ orden.vehiculo_id.placa_veh }}</li>
+                        <li><strong><i class="fas fa-industry"></i> Marca:</strong> {{ orden.vehiculo_id.marca_veh }}</li>
+                        <li><strong><i class="fas fa-cogs"></i> Modelo:</strong> {{ orden.vehiculo_id.modelo_veh }}</li>
+                      </ul>
+              </div>
+              <!-- Inspección -->
+              <div class="card card-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                  <h4 class="card-title">Estado Vehículo</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="km" class="form-label">Kilometraje:</label>
+                    <input type="number" class="form-control" id="km" name="km" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="nivel_gasolina" class="form-label">Nivel de Gasolina:</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>E</span>
+                      <input type="range" class="form-control-range" id="nivel_gasolina" name="nivel_gasolina" min="0" max="100" step="25" oninput="updateGasolinaLabel(this.value)" required />
+                      <span>F</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                      <span>0%</span>
+                      <span>25%</span>
+                      <span>50%</span>
+                      <span>75%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <!-- Primera columna de inspección -->
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="plumas" id="plumas" name="plumas" />
+                        <label class="form-check-label" for="plumas">Plumas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="antena" id="antena" name="antena" />
+                        <label class="form-check-label" for="antena">Antena</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="radio" id="radio" name="radio" />
+                        <label class="form-check-label" for="radio">Radio</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="encendedor" id="encendedor" name="encendedor" />
+                        <label class="form-check-label" for="encendedor">Encendedor</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="espejos" id="espejos" name="espejos" />
+                        <label class="form-check-label" for="espejos">Espejos</label>
+                      </div>
+                    </div>
+                    <!-- Segunda columna de inspección -->
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="gata" id="gata" name="gata" />
+                        <label class="form-check-label" for="gata">Gata</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="llave_de_ruedas" id="llave_de_ruedas" name="llave_de_ruedas" />
+                        <label class="form-check-label" for="llave_de_ruedas">Llave de Ruedas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="llanta_emergencia" id="llanta_emergencia" name="llanta_emergencia" />
+                        <label class="form-check-label" for="llanta_emergencia">Llanta de Emergencia</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="parlantes" id="parlantes" name="parlantes" />
+                        <label class="form-check-label" for="parlantes">Parlantes</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="direccionales" id="direccionales" name="direccionales" />
+                        <label class="form-check-label" for="direccionales">Direccionales</label>
+                      </div>
+                    </div>
+                    <!-- Tercera columna de inspección -->
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="manubrios" id="manubrios" name="manubrios" />
+                        <label class="form-check-label" for="manubrios">Manubrios</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="parabrisas" id="parabrisas" name="parabrisas" />
+                        <label class="form-check-label" for="parabrisas">Parabrisas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="t_seguridad" id="t_seguridad" name="t_seguridad" />
+                        <label class="form-check-label" for="t_seguridad">Triángulo de Seguridad</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="tapa_radiador" id="tapa_radiador" name="tapa_radiador" />
+                        <label class="form-check-label" for="tapa_radiador">Tapa del Radiador</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="mandos_funcionales" id="mandos_funcionales" name="mandos_funcionales" />
+                        <label class="form-check-label" for="mandos_funcionales">Mandos Funcionales</label>
+                      </div>
+                    </div>
+                    <!-- Cuarta columna de inspección -->
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="cenicero" id="cenicero" name="cenicero" />
+                        <label class="form-check-label" for="cenicero">Cenicero</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="palanca" id="palanca" name="palanca" />
+                        <label class="form-check-label" for="palanca">Palanca</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="herramientas" id="herramientas" name="herramientas" />
+                        <label class="form-check-label" for="herramientas">Herramientas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="botiquin" id="botiquin" name="botiquin" />
+                        <label class="form-check-label" for="botiquin">Botiquín</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="tapa_gasolina" id="tapa_gasolina" name="tapa_gasolina" />
+                        <label class="form-check-label" for="tapa_gasolina">Tapa de Gasolina</label>
+                      </div>
+                    </div>
+                    <!-- Quinta columna de inspección -->
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="lunas" id="lunas" name="lunas" />
+                        <label class="form-check-label" for="lunas">Lunas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="faros" id="faros" name="faros" />
+                        <label class="form-check-label" for="faros">Faros</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="extintor" id="extintor" name="extintor" />
+                        <label class="form-check-label" for="extintor">Extintor</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="tapa_cubas" id="tapa_cubas" name="tapa_cubas" />
+                        <label class="form-check-label" for="tapa_cubas">Tapa de Cubas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="triangulos" id="triangulos" name="triangulos" />
+                        <label class="form-check-label" for="triangulos">Triángulos</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="emblemas" id="emblemas" name="emblemas" />
+                        <label class="form-check-label" for="emblemas">Emblemas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="placas" id="placas" name="placas" />
+                        <label class="form-check-label" for="placas">Placas</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="moquetas" id="moquetas" name="moquetas" />
+                        <label class="form-check-label" for="moquetas">Moquetas</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card card-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                  <h4 class="card-title">Registrar Daños</h4>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                  <div id="carImageContainer">
+                    <img id="carImage" src="{% static 'lib/adminlte/img/reporte.webp' %}" alt="Diagrama del Vehículo"
+                      class="img-fluid" />
+                    <div id="markerContainer"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-start mt-3">
+                <button type="submit" class="btn btn-primary">
+                  Guardar Daños
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  const carImage = document.getElementById("carImage");
+  const markerContainer = document.getElementById("markerContainer");
+
+  function updateGasolinaLabel(value) {
+    document.getElementById("nivel_gasolina_label").innerText = value + "%";
+  }
+
+  carImage.addEventListener("click", (e) => {
+    const rect = carImage.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    addMarker(x, y);
+  });
+
+  function addMarker(x, y) {
+    const marker = document.createElement("div");
+    marker.className = "marker";
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+    marker.id = `marker-${Date.now()}`;
+
+    const icon = document.createElement("i");
+    icon.className = "fas fa-times-circle"; // Icono de X roja
+    marker.appendChild(icon);
+
+    marker.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showCommentBox(marker, x, y);
+    });
+    markerContainer.appendChild(marker);
+  }
+
+  function showCommentBox(marker, x, y) {
+    const existingCommentBoxes = document.querySelectorAll(".comment-box");
+    existingCommentBoxes.forEach((box) => (box.style.display = "none"));
+
+    let commentBox = marker.nextElementSibling;
+    if (!commentBox || !commentBox.classList.contains("comment-box")) {
+      commentBox = document.createElement("div");
+      commentBox.className = "comment-box p-2";
+      commentBox.style.left = `${x + 2}%`;
+      commentBox.style.top = `${y}%`;
+      commentBox.innerHTML = `
+        <textarea class="form-control mb-2" placeholder="Describa el daño"></textarea>
+        <button class="btn btn-success btn-sm mr-2" onclick="saveComment(event, this, ${x}, ${y})">Guardar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteMarker(event, '${marker.id}', this)">Eliminar</button>
+      `;
+      markerContainer.appendChild(commentBox);
+    }
+    commentBox.style.display = "block";
+  }
+
+  function saveComment(event, button, x, y) {
+    event.preventDefault();
+    const commentBox = button.parentElement;
+    const textarea = commentBox.querySelector("textarea");
+    const description = textarea.value;
+
+    const form = document.getElementById("daniosForm");
+    const inputX = document.createElement("input");
+    inputX.type = "hidden";
+    inputX.name = "x_pos[]";
+    inputX.value = x;
+
+    const inputY = document.createElement("input");
+    inputY.type = "hidden";
+    inputY.name = "y_pos[]";
+    inputY.value = y;
+
+    const inputDescription = document.createElement("input");
+    inputDescription.type = "hidden";
+    inputDescription.name = "descripcion_dan[]";
+    inputDescription.value = description;
+
+    form.appendChild(inputX);
+    form.appendChild(inputY);
+    form.appendChild(inputDescription);
+
+    iziToast.success({
+      title: 'Guardado',
+      message: 'El comentario ha sido guardado.',
+      position: 'topRight'
+    });
+    commentBox.style.display = "none";
+  }
+
+  function confirmDeleteMarker(event, markerId, button) {
+    event.preventDefault();
+    iziToast.question({
+      timeout: 20000,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'question',
+      zindex: 999,
+      title: 'Confirmación',
+      message: '¿Está seguro de que desea eliminar este marcador?',
+      position: 'center',
+      buttons: [
+        ['<button><b>SI</b></button>', function (instance, toast) {
+          deleteMarker(markerId, button);
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }, true],
+        ['<button>NO</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }]
+      ],
+    });
+  }
+
+  function deleteMarker(markerId, button) {
+    const commentBox = button.parentElement;
+    const marker = document.getElementById(markerId);
+    marker.remove();
+    commentBox.remove();
+
+    // Añadir un input oculto para marcar el marcador como eliminado
+    const form = document.getElementById("daniosForm");
+    const inputDeletedMarkerId = document.createElement("input");
+    inputDeletedMarkerId.type = "hidden";
+    inputDeletedMarkerId.name = "deleted_marker_ids[]";
+    inputDeletedMarkerId.value = markerId;
+    form.appendChild(inputDeletedMarkerId);
+
+    iziToast.success({
+      title: 'Eliminado',
+      message: 'El marcador ha sido eliminado.',
+      position: 'topRight'
+    });
+  }
+</script>
+<script>
+  function validateAndSubmit() {
+    if ($("#daniosForm").valid()) {
+      document.getElementById('daniosForm').submit();
+    } else {
+      iziToast.error({
+        title: 'Error',
+        message: 'Por favor, corrija los errores en el formulario.',
+        position: 'topRight'
+      });
+    }
+  }
+
+  $(document).ready(function () {
+    // Configuración de la validación del formulario
+    $("#daniosForm").validate({
+      rules: {
+        km: {
+          required: true,
+          digits: true,
+          min: 1,
+          max: 600000,
+        },
+      },
+      messages: {
+
+        km: {
+          required: "Por favor, ingrese el kilometraje del vehículo",
+          digits: "Por favor, ingrese solo números",
+          min: "El kilometraje debe ser al menos 1",
+          max: "El kilometraje no debe ser más de 600,000",
+        },
+      },
+      errorElement: "span",
+      errorPlacement: function (error, element) {
+        error.addClass("invalid-feedback");
+        element.closest(".form-group").append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass("is-invalid").removeClass("is-valid");
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass("is-invalid").addClass("is-valid");
+      },
+    });
+
+
+  });
+</script>
+{% endblock %}

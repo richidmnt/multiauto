@@ -1,0 +1,181 @@
+{% extends "./index.html" %} {% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="card-title">Lista de Vehículos</h3>
+    <a href="{% url 'guardarVehiculo' %}" class="btn btn-primary ml-auto">
+        <i class="fa fa-plus nav-icon"></i> Nuevo Vehículo
+    </a>
+</div>     
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table
+                  id="tbl_vehiculos"
+                  class="table table-head-fixed text-nowrap"
+                >
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Placa</th>
+                      <th>Año</th>
+                      <th>Color</th>
+                      <th>Cliente</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for vehiculo in vehiculos %}
+                    <tr class="align-middle">
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ vehiculo.marca_veh }}</td>
+                      <td>{{ vehiculo.modelo_veh }}</td>
+                      <td>{{ vehiculo.placa_veh }}</td>
+                      <td>{{ vehiculo.anio_veh }}</td>
+                     
+                      <td>{{ vehiculo.color_veh }}</td>
+                      <td>
+                        {{ vehiculo.cli_id.nombre_cli }}
+                        {{vehiculo.cli_id.apellido_cli }}
+                      </td>
+                      <td>
+                        <a
+                          href="/actualizar_vehiculo/{{ vehiculo.id_veh }}/"
+                          title="Editar"
+                          class="btn btn-warning"
+                          ><i class="fas fa-pen"></i></a
+                        >
+                        <a
+                          href="#"
+                          title="Eliminar"
+                          onclick="eliminar('/eliminar_vehiculo/{{ vehiculo.id_veh }}/')"
+                          class="btn btn-danger"
+                          ><i class="fas fa-trash"></i></a
+                        >
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function eliminar(url) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de eliminar el vehículo seleccionado?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = url;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+</script>
+{% endblock %} {% block extra_scripts %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    if (!$.fn.dataTable.isDataTable("#tbl_vehiculos")) {
+      $("#tbl_vehiculos").DataTable({
+        dom: "Bfrtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          
+          sProcessing: "Procesando...",
+          sLengthMenu: "Mostrar _MENU_ registros",
+          sZeroRecords: "No se encontraron resultados",
+          sEmptyTable: "Ningún dato disponible en esta tabla",
+          sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+          sInfoPostFix: "",
+          sSearch: "Buscar:",
+          sUrl: "",
+          sInfoThousands: ",",
+          sLoadingRecords: "Cargando...",
+          oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior",
+          },
+          oAria: {
+            sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+            sSortDescending: ": Activar para ordenar la columna de manera descendente",
+          },
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "Reporte de Vehículos.",
+            className: "btn btn-warning",
+             exportOptions: {
+              columns: [0,1, 2, 3,4,5]
+            } 
+          },
+          {
+            extend: "print",
+            className: "btn btn-warning",
+             exportOptions: {
+              columns: [0,1, 2, 3,4, 5]
+            }  
+          },
+          {
+            extend: "excelHtml5",
+            className: "btn btn-warning", 
+             exportOptions: {
+              columns: [0,1, 2, 3,4, 5]
+            } 
+          },
+        ],
+         rowCallback: function (row, data, index) {
+          var api = this.api();
+          var pageInfo = api.page.info();
+          var rowIndex = pageInfo.start + index + 1;
+          $('td:eq(0)', row).html(rowIndex); // Actualiza la columna de numeración
+        }
+      }).buttons().container().appendTo("#tbl_vehiculos_wrapper .col-md-6:eq(0)");
+    }
+  });
+</script>
+{% endblock %}

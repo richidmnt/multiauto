@@ -1,0 +1,351 @@
+{% extends "./index.html" %}
+
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-2"></div>
+              <div class="col-md-12">
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h2 class="card-title text-center">Actualizar Cliente</h2>
+                  </div>
+                  <div class="card-body">
+                    <form
+                      id="clienteFormA"
+                      method="post"
+                      action="/actualizar_cliente/{{cliente.id_cli}}/"
+                    >
+                      {% csrf_token %}
+                      <input
+                        type="hidden"
+                        name="id_cli"
+                        value="{{ cliente.id_cli}}"
+                      />
+                      <div class="row">
+                        <div class="col-md-8">
+                          <div class="row">
+                            <div class="col-6">
+                              <div class="form-group">
+                                <label for="id_nombre_cli" class="form-label">Nombre:</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="id_nombre_cli"
+                                  name="nombre_cli"
+                                  value="{{ cliente.nombre_cli }}"
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div class="col-6">
+                              <div class="form-group">
+                                <label for="id_apellido_cli" class="form-label">Apellido:</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="id_apellido_cli"
+                                  name="apellido_cli"
+                                  value="{{ cliente.apellido_cli }}"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="id_ci_cli" class="form-label">Cédula de Identidad:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="id_ci_cli"
+                              name="ci_cli"
+                              value="{{ cliente.ci_cli }}"
+                              required
+                            />
+                          </div>
+                          <div class="form-group">
+                            <label for="id_telefono_cli" class="form-label">Teléfono:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="id_telefono_cli"
+                              name="telefono_cli"
+                              value="{{ cliente.telefono_cli }}"
+                            />
+                          </div>
+                          <div class="form-group">
+                            <label for="id_email_cli" class="form-label">Correo Electrónico:</label>
+                            <input
+                              type="email"
+                              class="form-control"
+                              id="id_email_cli"
+                              name="email_cli"
+                              value="{{ cliente.email_cli }}"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="col-sm-4 p-3"
+                          style="border-left: 1px solid black"
+                        >
+                          <h2>Dirección</h2>
+                          <div class="form-group">
+                            <label for="ciudad_dir" class="form-label">Ciudad:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="ciudad_dir"
+                              name="ciudad_dir"
+                              value="{{ cliente.dir_id.ciudad_dir }}"
+                              required
+                            />
+                          </div>
+                          <div class="form-group">
+                            <label for="barrio_dir" class="form-label">Barrio:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="barrio_dir"
+                              name="barrio_dir"
+                              value="{{ cliente.dir_id.barrio_dir }}"
+                              required
+                            />
+                          </div>
+                          <div class="form-group">
+                            <label for="calle_dir" class="form-label">Calle:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="calle_dir"
+                              name="calle_dir"
+                              value="{{ cliente.dir_id.calle_dir }}"
+                             
+                            />
+                          </div>
+                         
+                        </div>
+                      </div>
+                      <button type="button" onclick="actualizar()" class="btn btn-primary">
+                        Actualizar Cliente
+                      </button>
+                      <a href="{% url 'listaClientes' %}" class="btn btn-danger">Cancelar</a>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function actualizar() {
+    if ($("#clienteFormA").valid()) {
+      iziToast.question({
+        timeout: 15000,
+        close: true,
+        overlay: true,
+        displayMode: "once",
+        id: "question",
+        zindex: 999,
+        title: "Confirmación",
+        message: "¿Está seguro de actualizar la información de la inspección?",
+        position: "center",
+        buttons: [
+          [
+            "<button><b>SI</b></button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+              document.getElementById('clienteFormA').submit();
+            },
+            true,
+          ],
+          [
+            "<button>NO</button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            },
+          ],
+        ],
+        onClosing: function (instance, toast, closedBy) {
+          console.info("Closing | closedBy: " + closedBy);
+        },
+        onClosed: function (instance, toast, closedBy) {
+          console.info("Closed | closedBy: " + closedBy);
+        },
+      });
+    } else {
+      iziToast.error({
+        title: 'Error',
+        message: 'Por favor, corrija los errores en el formulario.',
+        position: 'topRight'
+      });
+    }
+  }
+</script>
+
+<script>
+  $.validator.addMethod(
+    "lettersonly",
+    function (value, element) {
+      return this.optional(element) || /^[a-zA-Z\s]+$/i.test(value);
+    },
+    "Por favor, ingresa solo letras"
+  );
+
+  $.validator.addMethod("validarCorreoElectronico", function(value, element) {
+    return this.optional(element) || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+  }, "Por favor, ingrese un correo electrónico válido.");
+
+  $.validator.addMethod("validarCedulaEcuatoriana", function(value, element) {
+    if (value.length !== 10 || isNaN(value))
+      return false;
+
+    var provinciasValidas = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
+
+    var provincia = value.substring(0, 2);
+    if (provinciasValidas.indexOf(provincia) === -1)
+      return false;
+
+    var digitoVerificadorEsperado = parseInt(value[9]);
+
+    var coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    var suma = 0;
+    for (var i = 0; i < coeficientes.length; i++) {
+      var resultado = parseInt(value[i]) * coeficientes[i];
+      suma += resultado >= 10 ? resultado - 9 : resultado;
+    }
+    var residuo = suma % 10;
+    var digitoVerificadorCalculado = residuo !== 0 ? 10 - residuo : 0;
+
+    return digitoVerificadorEsperado === digitoVerificadorCalculado;
+  }, "Ingrese una cédula ecuatoriana válida");
+
+  $.validator.addMethod("validarInicioTelefono", function(value, element) {
+    return value.startsWith("09");
+  }, "El número de teléfono debe comenzar con '09'.");
+
+  $("#clienteFormA").validate({
+    rules: {
+      nombre_cli: {
+        required: true,
+        minlength: 3,
+        maxlength: 50,
+        lettersonly: true
+      },
+      apellido_cli: {
+        required: true,
+        minlength: 3,
+        maxlength: 50,
+        lettersonly: true
+      },
+      ci_cli: {
+        digits: true,
+        minlength: 10,
+        maxlength: 10,
+        validarCedulaEcuatoriana: true
+      },
+      telefono_cli: {
+        digits: true,
+        minlength: 10,
+        maxlength: 10,
+        validarInicioTelefono: true
+      },
+      email_cli: {
+        required: true,
+        email: true,
+        validarCorreoElectronico: true
+      },
+      ciudad_dir: {
+        required: true,
+        minlength: 3,
+        maxlength: 50,
+        lettersonly: true
+      },
+      barrio_dir: {
+        required: true,
+        minlength: 3,
+        maxlength: 50,
+        lettersonly: true
+      },
+      calle_dir: {
+        required:true,
+        minlength: 3,
+        maxlength: 50,
+      },
+    },
+    messages: {
+      nombre_cli: {
+        required: "Por favor, ingresa el nombre",
+        minlength: "El nombre debe tener al menos 3 letras",
+        maxlength: "El nombre debe tener máximo 50 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      apellido_cli: {
+        required: "Por favor, ingresa el apellido",
+        minlength: "El apellido debe tener al menos 3 letras",
+        maxlength: "El apellido debe tener máximo 50 letras",
+        lettersonly: "Por favor, ingresa solo letras",
+      },
+      ci_cli: {
+        required: "Por favor, ingresa la cédula",
+        digits: "Por favor, ingresa solo números",
+        minlength: "La cédula debe tener 10 caracteres",
+        maxlength: "La cédula no puede tener más de 10 caracteres",
+        validarCedulaEcuatoriana: "Ingrese una cédula ecuatoriana válida"
+      },
+      telefono_cli: {
+        required: "Por favor, ingresa el teléfono",
+        digits: "Por favor, ingresa solo números",
+        minlength: "El teléfono debe tener 10 dígitos",
+        maxlength: "El teléfono no puede tener más de 10 dígitos",
+        validarInicioTelefono: "El número de teléfono debe comenzar con '09'."
+      },
+      email_cli: {
+        required: "Por favor, ingresa el correo electrónico del cliente",
+        email: "Por favor, ingresa un correo electrónico válido",
+        validarCorreoElectronico: "Por favor, ingresa un correo electrónico válido"
+      },
+      ciudad_dir: {
+        required: "Por favor, ingresa la ciudad",
+        minlength: "La ciudad debe tener al menos 3 letras",
+        maxlength: "La ciudad no puede tener más de 50 letras",
+        lettersonly: "Por favor, ingresa solo letras."
+      },
+      barrio_dir: {
+        required: "Por favor, ingresa el barrio",
+        minlength: "El barrio debe tener al menos 3 letras",
+        maxlength: "El barrio no puede tener más de 50 letras",
+        lettersonly: "Por favor, ingresa solo letras."
+      },
+      calle_dir: {
+        required:'Por favor, ingrese la calle.',
+        minlength: "La calle debe tener al menos 3 letras",
+        maxlength: "La calle no puede tener más de 50 letras",
+      },
+    },
+    errorElement: "span",
+    errorPlacement: function (error, element) {
+      error.addClass("invalid-feedback");
+      element.closest(".form-group").append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass("is-invalid").removeClass("is-valid");
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass("is-invalid").addClass("is-valid");
+    },
+  });
+</script>
+{% endblock %}

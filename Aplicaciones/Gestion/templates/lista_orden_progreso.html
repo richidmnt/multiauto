@@ -1,0 +1,103 @@
+{% extends "./prueba.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-warning">
+          <div class="card-header">
+            <h3 class="card-title">Lista de Órdenes</h3>
+          </div>
+          <div class="card-body">
+            {% if ordenes_con_servicios %}
+              <div class="row">
+                {% for orden, servicios in ordenes_con_servicios %}
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-header {% if orden.estado_ord == 'EN_PROGRESO' %}bg-warning{% elif orden.estado_ord == 'ESPERANDO_REPUESTOS' %}bg-info{% else %}bg-secondary{% endif %}">
+                      <h3 class="card-title text-white"><i class="fas fa-file-alt"></i> ORDEN: {{ orden.numero_ord }}</h3>
+                    </div>
+                    <div class="card-body">
+                      <p><strong><i class="fas fa-user"></i> Datos del Cliente:</strong></p>
+                      <p><strong>Nombres:</strong> {{ orden.vehiculo_id.cli_id.nombre_cli }}</p>
+                      <p><strong>Apellidos:</strong> {{ orden.vehiculo_id.cli_id.apellido_cli }}</p>
+                      <p><strong><i class="fas fa-car-side"></i>Datos del Vehículo:</strong></p>
+                      <ul>
+                        <li><strong><i class="fas fa-car"></i> Placa:</strong> {{ orden.vehiculo_id.placa_veh }}</li>
+                        <li><strong><i class="fas fa-industry"></i> Marca:</strong> {{ orden.vehiculo_id.marca_veh }}</li>
+                        <li><strong><i class="fas fa-cogs"></i> Modelo:</strong> {{ orden.vehiculo_id.modelo_veh }}</li>
+                        
+                      </ul>
+                      <p><i class="fas fa-check"></i><strong>Servicios:</strong></p>
+                      <ul>
+                        {% for orden_servicio in servicios %}
+                        <li>{{ orden_servicio.servicio_id.nombre_ser }}</li>
+                        {% endfor %}
+                      </ul>
+                      <p><i class="fas fa-exclamation-triangle"></i><strong>Observaciones:</strong> {{ orden.observaciones_ord }}</p>
+                      <p><i class="fas fa-calendar"></i><strong>Fecha de la Orden:</strong> {{ orden.fecha_ord|date:"d/m/Y" }}</p>
+                      <div class="btn-group" role="group" aria-label="Cambiar Estado">
+                        <button onclick="confirmarCambioEstado({{ orden.id_ord }}, 'EN_PROGRESO')" class="btn btn-warning">En Progreso</button>
+                        <button onclick="confirmarCambioEstado({{ orden.id_ord }}, 'ESPERANDO_REPUESTOS')" class="btn btn-info">Buscando Repuestos</button>
+                        <button onclick="confirmarCambioEstado({{ orden.id_ord }}, 'COMPLETADA')" class="btn btn-success">Completada</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation"></i> No existen ordenes en progreso.
+              </div>
+            {% endif %}
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  function confirmarCambioEstado(id_ord, nuevo_estado) {
+    iziToast.question({
+      timeout: 20000,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'question',
+      zindex: 999,
+      title: 'Confirmación',
+      message: '¿Estás seguro de cambiar el estado de la orden a ' + nuevo_estado + '?',
+      position: 'center',
+      buttons: [
+        ['<button><b>SI</b></button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+          cambiarEstadoOrden(id_ord, nuevo_estado);
+        }, true],
+        ['<button>NO</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }],
+      ]
+    });
+  }
+
+  function cambiarEstadoOrden(id_ord, nuevo_estado) {
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/cambiar_estado_orden/' + id_ord + '/' + nuevo_estado + '/';
+    var csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrfmiddlewaretoken';
+    csrfToken.value = '{{ csrf_token }}';
+    form.appendChild(csrfToken);
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
+{% endblock %}

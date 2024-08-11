@@ -1,0 +1,58 @@
+<!-- templates/permission_denied.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Denegado</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'lib/adminlte/plugins/fontawesome-free/css/all.min.css' %}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'lib/adminlte/dist/css/adminlte.min.css' %}">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+        .error-page {
+            text-align: center;
+        }
+        .error-page .headline {
+            font-size: 100px;
+            color: #dc3545;
+        }
+        .error-page .error-content {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .error-page .error-content h3 {
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .error-page .error-content p {
+            font-size: 18px;
+        }
+        .error-page .error-content a {
+            margin-top: 20px;
+            display: inline-block;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <h2 class="headline">403</h2>
+        <div class="error-content">
+            <h3><i class="fas fa-exclamation-triangle text-danger"></i> Acceso Denegado</h3>
+            <p>No tienes permiso para acceder a esta página.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+        </div>
+    </div>
+</body>
+</html>

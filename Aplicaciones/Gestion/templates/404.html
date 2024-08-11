@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página no encontrada</title>
+    <link rel="stylesheet" href="{% static 'lib/adminlte/dist/css/adminlte.min.css' %}">
+</head>
+<body class="hold-transition">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mt-5">
+                    <div class="card-header bg-danger text-white">
+                        <h3>Error 404 - Página no encontrada</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Lo sentimos, la página que estás buscando no existe.</p>
+                        <a href="{% url 'home' %}" class="btn btn-primary">Volver al inicio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

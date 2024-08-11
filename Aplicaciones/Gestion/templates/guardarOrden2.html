@@ -1,0 +1,324 @@
+{% extends "./index.html" %}
+
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">
+            <h3 class="card-title">Registrar Orden</h3>
+          </div>
+          <div class="card-body">
+            <form id="ordenForm" method="post" action="/registrar_orden_2/">
+              {% csrf_token %}
+              <div class="row">
+                <!-- Cliente -->
+                <div class="col-lg-4 col-md-6">
+                  <div class="card card-warning mb-3">
+                    <div class="card-header bg-secondary text-white">
+                      <h4 class="card-title">Registrar Vehiculo</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-row">
+                        <label for="vehiculoSelect2" class="form-label">Elija un vehiculo</label>
+                        <select class="form-control select2" name="vehiculo_id" id="vehiculoSelect2" required>
+                          <option value="">Seleccione un vehículo</option>
+                          {% for vehiculo in vehiculos %}
+                            <option value="{{ vehiculo.id_veh }}"
+                              data-nombre="{{ vehiculo.cli_id.nombre_cli }}"
+                              data-apellido="{{ vehiculo.cli_id.apellido_cli }}"
+                              data-email="{{ vehiculo.cli_id.email_cli }}"
+                              data-telefono="{{ vehiculo.cli_id.telefono_cli }}">
+                              {{ vehiculo.placa_veh }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                        <div class="form-group">
+  <label for="cliente" class="form-label">Cliente</label>
+  <p><b><i class="fas fa-user"></i> Nombre:</b> <span id="clienteNombre">{{ orden.vehiculo_id.cli_id.nombre_cli }}</span></p>
+  <p><b><i class="fas fa-user-tag"></i> Apellido:</b> <span id="clienteApellido">{{ orden.vehiculo_id.cli_id.apellido_cli }}</span></p>
+  <p><b><i class="fas fa-envelope"></i> Email:</b> <span id="clienteEmail">{{ orden.vehiculo_id.cli_id.email_cli }}</span></p>
+  <p><b><i class="fas fa-phone"></i> Teléfono:</b> <span id="clienteTelefono">{{ orden.vehiculo_id.cli_id.telefono_cli }}</span></p>
+</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Orden -->
+              <div class="card card-primary mb-3">
+                <div class="card-header bg-secondary text-white">
+                  <h4 class="card-title">Registrar Orden</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="fecha_ord" class="form-label">Fecha de la Orden:</label>
+                      <input type="datetime-local" class="form-control" id="fecha_ord" name="fecha_ord" readonly />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="numero_ord" class="form-label">Número de Orden:</label>
+                    <input type="number" class="form-control" id="numero_ord" name="numero_ord" value="{{ next_numero_ord }}" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="observaciones_ord" class="form-label">Observaciones:</label>
+                    <textarea class="form-control" id="observaciones_ord" name="observaciones_ord" rows="3" required minlength="10" maxlength="200"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="estado_ord" class="form-label">Estado:</label>
+                    <select class="form-control select2" id="estado_ord" name="estado_ord" required>
+                      {% for key, value in ESTADOS %}
+                        <option value="{{ key }}">{{ value }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="usuario_id" class="form-label">Mecánico responsable:</label>
+                    <select class="form-control select2" id="usuario_id" name="usuario_id" required>
+                      <option value="">Seleccione un usuario</option>
+                      {% for usuario in usuarios %}
+                        <option value="{{ usuario.id_usr }}">{{ usuario.nombre }} {{ usuario.apellido }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Servicios -->
+              <div class="card card-primary mb-3">
+                <div class="card-header bg-secondary text-white">
+                  <h4 class="card-title">Servicios</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="servicios" class="form-label">Servicios:</label>
+                    <div class="table-responsive">
+                      <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Servicio</th>
+                          <th>Precio</th>
+                          <th>Subtotal</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody id="serviciosTableBody">
+                        <tr>
+                          <td>
+                            <select class="form-control select2 servicio-select" name="servicio_id[]" onchange="updateSubtotal(this)" required>
+                              <option value="">Seleccione un servicio</option>
+                              {% for servicio in servicios %}
+                                <option value="{{ servicio.id_ser }}" data-precio="{{ servicio.precio_ser }}" data-nombre="{{ servicio.nombre_ser }}">{{ servicio.nombre_ser }}</option>
+                              {% endfor %}
+                            </select>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control precio" readonly />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control subtotal" name="subtotal[]" readonly />
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+                    <button type="button" class="btn btn-success mt-2" onclick="addRow()">Agregar Servicio</button>
+                  </div>
+                  <div class="form-group">
+                    <label for="total" class="form-label">Total:</label>
+                    <input type="text" class="form-control" id="total" name="total" readonly />
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-start mt-3">
+                <button type="submit" class="btn btn-primary">Registrar Orden</button>
+                <a href="{% url 'listarOrdenes' %}" class="btn btn-danger ml-2">Cancelar</a>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+  .select2-container {
+    width: 100% !important;
+  }
+</style>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var fechaOrdInput = document.getElementById("fecha_ord");
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, "0");
+    var day = String(now.getDate()).padStart(2, "0");
+    var hour = String(now.getHours()).padStart(2, "0");
+    var minute = String(now.getMinutes()).padStart(2, "0");
+    var localDatetime = year + "-" + month + "-" + day + "T" + hour + ":" + minute;
+    fechaOrdInput.value = localDatetime;
+
+    initializeSelect2(); // Inicializar Select2 para los campos al cargar la página
+  });
+
+  function updateSubtotal(selectElement) {
+    var row = selectElement.closest("tr");
+    var precio = selectElement.options[selectElement.selectedIndex].dataset.precio;
+    var subtotalInput = row.querySelector(".subtotal");
+    var precioInput = row.querySelector(".precio");
+
+    precioInput.value = precio;
+    subtotalInput.value = precio;
+
+    updateTotal();
+  }
+
+  function updateTotal() {
+    var total = 0;
+    document.querySelectorAll(".subtotal").forEach(function (subtotalInput) {
+      total += parseFloat(subtotalInput.value) || 0;
+    });
+    document.getElementById("total").value = total.toFixed(2);
+  }
+
+  function addRow() {
+    var newRow = `<tr>
+      <td>
+        <select class="form-control select2 servicio-select" name="servicio_id[]" onchange="updateSubtotal(this)" required>
+          <option value="">Seleccione un servicio</option>
+          {% for servicio in servicios %}
+            <option value="{{ servicio.id_ser }}" data-precio="{{ servicio.precio_ser }}" data-nombre="{{ servicio.nombre_ser }}">{{ servicio.nombre_ser }}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td>
+        <input type="text" class="form-control precio" readonly />
+      </td>
+      <td>
+        <input type="text" class="form-control subtotal" name="subtotal[]" readonly />
+      </td>
+      <td>
+        <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+      </td>
+    </tr>`;
+    document.getElementById("serviciosTableBody").insertAdjacentHTML("beforeend", newRow);
+    initializeSelect2(); // Inicializar Select2 para el nuevo campo
+  }
+
+  function removeRow(button) {
+    button.closest("tr").remove();
+    updateTotal();
+  }
+
+  function initializeSelect2() {
+    $(".select2").select2({
+      allowClear: true,
+      placeholder: "Seleccione una opción"
+    });
+  }
+
+  document.getElementById('ordenForm').addEventListener('submit', function (e) {
+    var servicioSelects = document.querySelectorAll('.servicio-select');
+    var servicios = [];
+    var duplicado = false;
+    var duplicadoNombre = "";
+
+    servicioSelects.forEach(function (select) {
+      var servicioId = select.value;
+      var servicioNombre = select.options[select.selectedIndex].dataset.nombre;
+      if (servicios.includes(servicioId)) {
+        duplicado = true;
+        duplicadoNombre = servicioNombre;
+      }
+      servicios.push(servicioId);
+    });
+
+    if (duplicado) {
+      e.preventDefault();
+      iziToast.error({
+        title: 'Error',
+        message: `El servicio "${duplicadoNombre}" ya está agregado.`,
+        position: 'topRight'
+      });
+    }
+  });
+
+  $(document).ready(function() {
+    $("#ordenForm").validate({
+      rules: {
+        vehiculo_id: {
+          required: true,
+        },
+        observaciones_ord: {
+          required: true,
+          minlength: 10,
+          maxlength: 200
+        },
+        estado_ord: {
+          required: true
+        },
+        usuario_id: {
+          required: true
+        },
+        "servicio_id[]": {
+          required: true
+        }
+      },
+      messages: {
+        vehiculo_id: {
+          required: "Por favor, seleccione un vehículo"
+        },
+        observaciones_ord: {
+          required: "Por favor, ingrese observaciones",
+          minlength: "Las observaciones deben tener al menos 10 caracteres",
+          maxlength: "Las observaciones no pueden tener más de 200 caracteres"
+        },
+        estado_ord: {
+          required: "Por favor, seleccione un estado"
+        },
+        usuario_id: {
+          required: "Por favor, seleccione un usuario"
+        },
+        "servicio_id[]": {
+          required: "Por favor, seleccione un servicio"
+        }
+      },
+      errorElement: "span",
+      errorPlacement: function (error, element) {
+        error.addClass("invalid-feedback");
+        element.closest("div").append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass("is-invalid").removeClass("is-valid");
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass("is-invalid").addClass("is-valid");
+      }
+    });
+
+    $('#vehiculoSelect2').change(function() {
+      var selectedOption = $(this).find('option:selected');
+      var nombre = selectedOption.data('nombre');
+      var apellido = selectedOption.data('apellido');
+      var email = selectedOption.data('email');
+      var telefono = selectedOption.data('telefono');
+
+      $('#clienteNombre').text(nombre);
+      $('#clienteApellido').text(apellido);
+      $('#clienteEmail').text(email);
+      $('#clienteTelefono').text(telefono);
+    });
+  });
+</script>
+{% endblock %}

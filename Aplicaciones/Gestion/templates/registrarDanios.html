@@ -1,0 +1,195 @@
+{% extends "./index.html" %} {% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card card-danger">
+          <div class="card-header">
+            <h3 class="card-title">Actualizar Daños</h3>
+          </div>
+          <div class="card-body">
+            <form id="daniosForm" method="post" action="/actualizarDanios/">
+              {% csrf_token %}
+              <input type="hidden" name="orden" value="{{ orden.id_ord }}" />
+              <div id="carImageContainer" class="text-center">
+                <img
+                  id="carImage"
+                  src="https://previews.123rf.com/images/galimovma79/galimovma791510/galimovma79151000015/47423409-veh%C3%ADculo-condici%C3%B3n-informe-coche-lista-de-verificaci%C3%B3n-el-da%C3%B1o-de-auto-vector-inspecci%C3%B3n.jpg"
+                  alt="Diagrama del Vehículo"
+                  class="img-fluid"
+                />
+                <div id="markerContainer"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary">
+                  Actualizar Daños
+                </button>
+                <a href="{% url 'listarDanios' %}" class="btn btn-secondary"
+                  >Cancelar</a
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} {% block extra_scripts %}
+<script>
+  let markerCount = 0;
+  const carImage = document.getElementById("carImage");
+  const markerContainer = document.getElementById("markerContainer");
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const danios = {{ danios|safe }};
+    danios.forEach(danio => {
+      addMarker(danio.id_dan, danio.x_pos, danio.y_pos, danio.descripcion_dan);
+    });
+  });
+
+  carImage.addEventListener("click", (e) => {
+    const rect = carImage.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    addMarker(null, x, y);
+  });
+
+  function addMarker(id, x, y, description = '') {
+    const marker = document.createElement("div");
+    marker.className = "marker";
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+    marker.dataset.id = id || `marker-${Date.now()}`;
+
+    const icon = document.createElement("i");
+    icon.className = "fas fa-times-circle"; // Icono de X roja
+    marker.appendChild(icon);
+
+    marker.addEventListener("click", (event) => {
+      event.stopPropagation();
+      showCommentBox(marker, x, y, description);
+    });
+    markerContainer.appendChild(marker);
+
+    if (description) {
+      showCommentBox(marker, x, y, description);
+    }
+  }
+
+  function showCommentBox(marker, x, y, description = '') {
+    const existingCommentBoxes = document.querySelectorAll(".comment-box");
+    existingCommentBoxes.forEach((box) => (box.style.display = "none"));
+
+    let commentBox = marker.nextElementSibling;
+    if (!commentBox || !commentBox.classList.contains("comment-box")) {
+      commentBox = document.createElement("div");
+      commentBox.className = "comment-box p-2";
+      commentBox.style.left = `${x + 2}%`;
+      commentBox.style.top = `${y}%`;
+      commentBox.innerHTML = `
+        <textarea class="form-control mb-2" placeholder="Describa el daño">${description}</textarea>
+        <button class="btn btn-success btn-sm mr-2" onclick="saveComment(event, this, ${x}, ${y})">Guardar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMarker('${marker.dataset.id}', this)">Eliminar</button>
+      `;
+      markerContainer.appendChild(commentBox);
+    }
+    commentBox.style.display = "block";
+  }
+
+  function saveComment(event, button, x, y) {
+    event.preventDefault();
+    const commentBox = button.parentElement;
+    const textarea = commentBox.querySelector("textarea");
+    const description = textarea.value;
+
+    const form = document.getElementById("daniosForm");
+    const inputId = document.createElement("input");
+    inputId.type = "hidden";
+    inputId.name = "id_dan[]";
+    inputId.value = button.closest(".comment-box").previousElementSibling.dataset.id;
+
+    const inputX = document.createElement("input");
+    inputX.type = "hidden";
+    inputX.name = "x_pos[]";
+    inputX.value = x;
+
+    const inputY = document.createElement("input");
+    inputY.type = "hidden";
+    inputY.name = "y_pos[]";
+    inputY.value = y;
+
+    const inputDescription = document.createElement("input");
+    inputDescription.type = "hidden";
+    inputDescription.name = "descripcion_dan[]";
+    inputDescription.value = description;
+
+    form.appendChild(inputId);
+    form.appendChild(inputX);
+    form.appendChild(inputY);
+    form.appendChild(inputDescription);
+
+    alert(`Comentario guardado: ${description}`);
+    commentBox.style.display = "none";
+  }
+
+  function deleteMarker(id, button) {
+    const form = document.getElementById("daniosForm");
+    const inputDelete = document.createElement("input");
+    inputDelete.type = "hidden";
+    inputDelete.name = "delete_id_dan[]";
+    inputDelete.value = id;
+    form.appendChild(inputDelete);
+
+    const commentBox = button.parentElement;
+    const marker = document.querySelector(`[data-id='${id}']`);
+    marker.remove();
+    commentBox.remove();
+  }
+</script>
+<script>
+  $(document).ready(function () {
+    // Configuración de Select2
+    $("#orden_id").select2({
+      allowClear: true,
+    });
+
+    // Configuración de la validación del formulario
+    $("#daniosForm").validate({
+      rules: {
+        orden: {
+          required:true,
+        },
+        km: {
+          required: true,
+          digits: true,
+          min: 1,
+          max: 600000,
+        },
+      },
+      messages: {
+        orden: {
+          required:"Por favor, seleccione una orden",
+        },
+        km: {
+          required: "Por favor, ingresa el kilometraje del vehículo",
+          digits: "Por favor, ingresa solo números",
+          min: "El kilometraje debe ser al menos 1",
+          max: "El kilometraje no debe ser más de 600,000",
+        },
+      },
+      errorElement: "span",
+      errorPlacement: function (error, element) {
+        error.addClass("invalid-feedback");
+        element.closest(".form-group").append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass("is-invalid").removeClass("is-valid");
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass("is-invalid").addClass("is-valid");
+      },
+    });
+  });
+</script>
+{% endblock %}

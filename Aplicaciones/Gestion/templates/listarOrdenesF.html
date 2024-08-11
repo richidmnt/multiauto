@@ -1,0 +1,230 @@
+{% extends "./index.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Lista de órdenes</h3>
+            <a href="{% url 'guardarOrden2' %}" class="btn btn-primary ml-auto">
+                <i class="fa fa-plus nav-icon"></i> Nueva Orden
+            </a>
+          </div>     
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table id="tbl_ordenes" class="table table-head-fixed text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Número de Orden</th>
+                      <th>Fecha de Inicio</th>
+                      <th>Cliente</th>
+                      <th>Auto</th>
+                      <th>Estado</th>
+                      <th>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for orden in ordenes %}
+                    <tr class="align-middle">
+                      <td>{{forloop.counter}} </td>
+                      <td>{{ orden.numero_ord }}</td>
+                      <td>{{ orden.fecha_ord|date:"d/m/Y H:i" }}</td>
+                      <td>
+                        {{ orden.vehiculo_id.cli_id.nombre_cli }} {{ orden.vehiculo_id.cli_id.apellido_cli }}
+                      </td>
+                      <td>
+                        {{ orden.vehiculo_id.marca_veh }} {{ orden.vehiculo_id.modelo_veh }} {{ orden.vehiculo_id.placa_veh }}
+                      </td>
+                      <td>
+                        {% if orden.estado_ord == 'PENDIENTE' %}
+                          <span class="badge bg-danger">Pendiente</span>
+                        {% elif orden.estado_ord == 'EN_PROGRESO' %}
+                          <span class="badge bg-warning text-dark">En Progreso</span>
+                        {% elif orden.estado_ord == 'ESPERANDO_REPUESTOS' %}
+                          <span class="badge bg-info text-dark">Esperando Repuestos</span>
+                        {% elif orden.estado_ord == 'COMPLETADA' %}
+                          <span class="badge bg-success">Completada</span>
+                        {% elif orden.estado_ord == 'FINALIZADA' %}
+                          <span class="badge bg-secondary">Finalizada</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="/detalle_orden/{{ orden.id_ord }}/"  title="Detalle" class="btn btn-primary"><i class="fas fa-book"></i></a>
+                        <a href="/obtener_orden/{{ orden.id_ord }}/" title="Editar" class="btn btn-warning"><i class="fas fa-pen"></i></a>
+                        <a href="#"  title="Eliminar"  onclick="eliminar('/eliminar_orden/{{ orden.id_ord }}/')" class="btn btn-danger">
+                          <i class="fas fa-trash"></i> 
+                        </a>
+                        {% if orden.estado_ord == 'COMPLETADA' %}
+                        <a href="#"  onclick="finalizar('/finalizar_orden/{{ orden.id_ord }}/')" title="Finalizar Orden" class="btn btn-success">
+                          <i class="fas fa-check"></i> 
+                        </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer">
+            <!-- Footer Content -->
+          </div>
+          <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function eliminar(url) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de eliminar la orden seleccionada?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = url;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+  function finalizar(url) {
+      iziToast.question({
+        timeout: 15000,
+        close: true,
+        overlay: true,
+        displayMode: "once",
+        id: "question",
+        zindex: 999,
+        title: "Confirmación",
+        message: "¿Está seguro de Finalizar la orden seleccionada?",
+        position: "center",
+        buttons: [
+          [
+            "<button><b>SI</b></button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+              window.location.href = url;
+            },
+            true,
+          ],
+          [
+            "<button>NO</button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            },
+          ],
+        ],
+        onClosing: function (instance, toast, closedBy) {
+          console.info("Closing | closedBy: " + closedBy);
+        },
+        onClosed: function (instance, toast, closedBy) {
+          console.info("Closed | closedBy: " + closedBy);
+        },
+      });
+    }
+</script>
+
+
+{% endblock %}
+{% block extra_scripts %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    if (!$.fn.dataTable.isDataTable("#tbl_ordens")) {
+      $("#tbl_ordenes").DataTable({
+        dom: "Bfrtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          
+          sProcessing: "Procesando...",
+          sLengthMenu: "Mostrar _MENU_ registros",
+          sZeroRecords: "No se encontraron resultados",
+          sEmptyTable: "Ningún dato disponible en esta tabla",
+          sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+          sInfoPostFix: "",
+          sSearch: "Buscar:",
+          sUrl: "",
+          sInfoThousands: ",",
+          sLoadingRecords: "Cargando...",
+          oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior",
+          },
+          oAria: {
+            sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+            sSortDescending: ": Activar para ordenar la columna de manera descendente",
+          },
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "Reporte de ordenes activas.",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4,5]
+            }  // Agregar clase de estilo de Bootstrap
+          },
+          {
+            extend: "print",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4,5]
+            }  // Agregar clase de estilo de Bootstrap
+          },
+          {
+            extend: "excelHtml5",
+            className: "btn btn-warning",
+            exportOptions: {
+              columns: [0,1, 2, 3, 4,5]
+            }  // Agregar clase de estilo de Bootstrap
+          },
+        ],
+         rowCallback: function (row, data, index) {
+          var api = this.api();
+          var pageInfo = api.page.info();
+          var rowIndex = pageInfo.start + index + 1;
+          $('td:eq(0)', row).html(rowIndex); // Actualiza la columna de numeración
+        }
+      }).buttons().container().appendTo("#tbl_ordenes_wrapper .col-md-6:eq(0)");
+    }
+  });
+</script>
+
+{% endblock %}

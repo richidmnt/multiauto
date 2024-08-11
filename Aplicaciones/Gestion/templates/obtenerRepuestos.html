@@ -1,0 +1,370 @@
+{% extends "./index.html" %}
+
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">
+            <h3 class="card-title">Editar Detalle</h3>
+          </div>
+          <div class="card-body">
+            <form id="repuestosForm" method="post" action="/editar_repuestos/">
+              {% csrf_token %}
+              <input type="hidden" name="orden_id" value="{{orden.id_ord}}">
+              <div class="row">
+                <!-- Orden -->
+                <div class="col-lg-4 col-md-6">
+                  <div class="card card-secondary mb-3">
+                    <div class="card-header bg-secondary text-white">
+                      <h4 class="card-title">Orden</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label for="orden_id" class="form-label">Elija una orden</label>
+                        <select name="orden_id" id="orden_id" class="form-control" disabled>
+                          <option value="{{ orden.id_ord }}">{{ orden.numero_ord }}</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Repuestos -->
+              <div class="card card-info mb-3">
+                <div class="card-header bg-secondary text-white">
+                  <h4 class="card-title">Repuestos</h4>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="repuestos" class="form-label">Repuestos:</label>
+                    <div class="table-responsive">
+                      <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Nombre del Repuesto</th>
+                          <th>Descripción</th>
+                          <th>Precio</th>
+                          <th>Cantidad</th>
+                          <th>Subtotal</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody id="repuestosTableBody">
+                        {% for repuesto in repuestos %}
+                        <tr>
+                          <td>
+                            <input type="text" class="form-control nombre-rep" name="nombre_rep[]" id="nombre_rep_{{ forloop.counter0 }}" value="{{ repuesto.nombre_rep }}" required minlength="5" maxlength="50" />
+                          </td>
+                          <td>
+                            <textarea class="form-control" name="descripcion_rep[]" id="descripcion_rep_{{ forloop.counter0 }}" rows="2"  minlength="5" maxlength="100">{{ repuesto.descripcion_rep }}</textarea>
+                          </td>
+                          <td>
+                            <input type="number" class="form-control precio" name="precio_rep[]" id="precio_rep_{{ forloop.counter0 }}" value="{{ repuesto.precio_rep|stringformat:'0.2f' }}" step="0.01" required min="2" max="1000" onchange="updateSubtotal(this)" />
+                          </td>
+                          <td>
+                            <input type="number" class="form-control cantidad" name="cantidad_rep[]" id="cantidad_rep_{{ forloop.counter0 }}" value="{{ repuesto.cantidad_rep }}" required min="1" max="100" onchange="updateSubtotal(this)" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control subtotal" name="subtotal_rep[]" id="subtotal_rep_{{ forloop.counter0 }}" value="{{ repuesto.subtotal_rep }}" readonly />
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    </div>
+                    <button type="button" class="btn btn-success mt-2" onclick="addRow()">Agregar Repuesto</button>
+                  </div>
+                  <div class="form-group">
+                    <label for="total" class="form-label">Total:</label>
+                    <input type="text" class="form-control" id="total" name="total" readonly />
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-start mt-3">
+                <button type="button" onclick="actualizar()" class="btn btn-primary">Actualizar Detalle</button>
+                <a href="{% url 'listaDetalle' %}" class="btn btn-danger ml-2">Cancelar</a>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+  .ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .ui-menu-item {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .ui-menu-item:hover {
+    background-color: #007bff;
+    color: white;
+  }
+</style>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+  function actualizar() {
+    if ($("#repuestosForm").valid()) {
+      iziToast.question({
+        timeout: 15000,
+        close: true,
+        overlay: true,
+        displayMode: "once",
+        id: "question",
+        zindex: 999,
+        title: "Confirmación",
+        message: "¿Está seguro de actualizar la información del detalle?",
+        position: "center",
+        buttons: [
+          [
+            "<button><b>SI</b></button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+              $("#repuestosForm").submit();
+            },
+            true,
+          ],
+          [
+            "<button>NO</button>",
+            function (instance, toast) {
+              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            },
+          ],
+        ],
+        onClosing: function (instance, toast, closedBy) {
+          console.info("Closing | closedBy: " + closedBy);
+        },
+        onClosed: function (instance, toast, closedBy) {
+          console.info("Closed | closedBy: " + closedBy);
+        },
+      });
+    } else {
+      iziToast.error({
+        title: 'Error',
+        message: 'Por favor, corrija los errores en el formulario.',
+        position: 'topRight'
+      });
+    }
+  }
+</script>
+
+<script>
+  let rowIndex = {{ repuestos|length }};
+
+  function updateSubtotal(element) {
+    var row = element.closest('tr');
+    var precio = parseFloat(row.querySelector('.precio').value) || 0;
+    var cantidad = parseInt(row.querySelector('.cantidad').value) || 0;
+    var subtotal = precio * cantidad;
+    row.querySelector('.subtotal').value = subtotal.toFixed(2);
+    updateTotal();
+  }
+
+  function updateTotal() {
+    var total = 0;
+    document.querySelectorAll('.subtotal').forEach(function (subtotalInput) {
+      total += parseFloat(subtotalInput.value) || 0;
+    });
+    document.getElementById('total').value = total.toFixed(2);
+  }
+
+  function addRow() {
+    var newRow = `
+      <tr>
+        <td>
+          <input type="text" class="form-control nombre-rep" name="nombre_rep[]" id="nombre_rep_${rowIndex}" autocomplete="off" required minlength="5" maxlength="50" />
+        </td>
+        <td>
+          <textarea class="form-control" name="descripcion_rep[]" id="descripcion_rep_${rowIndex}" autocomplete="off" rows="2"  minlength="5" maxlength="100"></textarea>
+        </td>
+        <td>
+          <input type="number" class="form-control precio" name="precio_rep[]" id="precio_rep_${rowIndex}" autocomplete="off" step="0.01" required min="2" max="1000" onchange="updateSubtotal(this)" />
+        </td>
+        <td>
+          <input type="number" class="form-control cantidad" name="cantidad_rep[]" id="cantidad_rep_${rowIndex}" autocomplete="off" required min="1" max="100" onchange="updateSubtotal(this)" />
+        </td>
+        <td>
+          <input type="text" class="form-control subtotal" name="subtotal_rep[]" id="subtotal_rep_${rowIndex}" readonly />
+        </td>
+        <td>
+          <button type="button" class="btn btn-danger" onclick="removeRow(this)">Eliminar</button>
+        </td>
+      </tr>`;
+    document.getElementById('repuestosTableBody').insertAdjacentHTML('beforeend', newRow);
+    initializeAutocomplete(`#nombre_rep_${rowIndex}`);
+    rowIndex++;
+  }
+
+  function removeRow(button) {
+    button.closest('tr').remove();
+    updateTotal();
+  }
+
+  function validateDuplicateRepuestos() {
+    var nombresRepuestos = [];
+    var isValid = true;
+    document.querySelectorAll('.nombre-rep').forEach(function (input) {
+      var value = input.value.trim().toLowerCase();
+      if (nombresRepuestos.includes(value)) {
+        isValid = false;
+        input.classList.add('is-invalid');
+        iziToast.error({
+          title: 'Error',
+          message: 'El nombre del repuesto "' + input.value + '" está duplicado.',
+          position: 'topRight'
+        });
+      } else {
+        nombresRepuestos.push(value);
+        input.classList.remove('is-invalid');
+      }
+    });
+    return isValid;
+  }
+
+  function initializeAutocomplete(selector) {
+    $(selector).autocomplete({
+      source: function(request, response) {
+        $.ajax({
+          url: "{% url 'obtener_nombres_repuestos' %}",
+          dataType: "json",
+          data: {
+            term: request.term
+          },
+          success: function(data) {
+            response($.map(data, function(item) {
+              return {
+                label: item.label,
+                value: item.value,
+                precio: item.precio
+              };
+            }));
+          }
+        });
+      },
+      minLength: 2,
+      select: function(event, ui) {
+        $(this).val(ui.item.value);
+        var row = $(this).closest('tr');
+        row.find('.precio').val(ui.item.precio);
+        updateSubtotal(row.find('.precio')[0]);
+        return false;
+      }
+    });
+  }
+
+  $(document).ready(function() {
+    initializeAutocomplete(".nombre-rep");
+
+    $("#repuestosForm").on('submit', function(e) {
+      let isValid = true;
+
+      // Validar todos los campos dinámicos
+      $(this).find('input, textarea').each(function() {
+        if (!this.checkValidity()) {
+          isValid = false;
+          $(this).addClass('is-invalid');
+        } else {
+          $(this).removeClass('is-invalid');
+        }
+      });
+
+      if (!validateDuplicateRepuestos() || !isValid) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    $("#repuestosForm").validate({
+      ignore: [],
+      rules: {
+        "nombre_rep[]": {
+          required: true,
+          minlength: 5,
+          maxlength: 50
+        },
+        "descripcion_rep[]": {
+          minlength: 5,
+          maxlength: 100
+        },
+        "precio_rep[]": {
+          required: true,
+          number: true,
+          min: 1,
+          max: 1000
+        },
+        "cantidad_rep[]": {
+          required: true,
+          number: true,
+          min: 1,
+          max: 50
+        }
+      },
+      messages: {
+        "nombre_rep[]": {
+          required: "Por favor, ingrese el nombre del repuesto",
+          minlength: "El nombre debe tener al menos 5 caracteres",
+          maxlength: "El nombre no puede tener más de 50 caracteres"
+        },
+        "descripcion_rep[]": {
+          minlength: "La descripción debe tener al menos 5 caracteres",
+          maxlength: "La descripción no puede tener más de 100 caracteres"
+        },
+        "precio_rep[]": {
+          required: "Por favor, ingrese el precio del repuesto",
+          number: "Por favor, ingrese un número válido",
+          min: "El precio debe ser al menos 1",
+          max: "El precio no puede ser más de 1000"
+        },
+        "cantidad_rep[]": {
+          required: "Por favor, ingrese la cantidad de repuestos",
+          number: "Por favor, ingrese un número válido",
+          min: "La cantidad debe ser al menos 1",
+          max: "La cantidad no puede ser más de 50"
+        }
+      },
+      errorElement: "span",
+      errorPlacement: function(error, element) {
+        error.addClass("invalid-feedback");
+        element.closest("td").append(error);
+      },
+      highlight: function(element, errorClass, validClass) {
+        $(element).addClass("is-invalid").removeClass("is-valid");
+      },
+      unhighlight: function(element, errorClass, validClass) {
+        $(element).removeClass("is-invalid").addClass("is-valid");
+      }
+    });
+
+    updateTotal();
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    // Configuración de Select2
+    $("#orden_id").select2({
+      allowClear: true,
+    });
+  });
+</script>
+{% endblock %}

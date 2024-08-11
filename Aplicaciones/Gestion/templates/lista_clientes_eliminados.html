@@ -1,0 +1,162 @@
+{% extends "./index.html" %}
+{% load static %}
+{% block body %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Default box -->
+        <div class="card card-secondary">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Lista de Clientes Eliminados</h3>
+            
+          </div>     
+          <div class="card-body">
+            <div class="row">
+              <div class="card-body table-responsive p-0">
+                <table id="tbl_cliente" class="table table-head-fixed text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre</th>
+                      <th>Apellido</th>
+                      <th>Ci</th>
+                      <th>Telefono</th>
+                      <th>Email</th>
+                      <th>Dirección</th>
+                      <th>Fecha Eliminación</th>
+                      <th>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cliente in clientes %}
+                    <tr class="align-middle">
+                      <td>{{cliente.id_cli}}</td>
+                      <td>{{cliente.nombre_cli}}</td>
+                      <td>{{cliente.apellido_cli}}</td>
+                      <td>{{cliente.ci_cli}}</td>
+                      <td>
+                        <a href="https://wa.me/593{{ cliente.telefono_cli }}" target="_blank">{{cliente.telefono_cli}}</a>
+                      </td>
+                      <td>{{cliente.email_cli}}</td>
+                      <td>
+                        {{cliente.dir_id.ciudad_dir}},{{cliente.dir_id.barrio_dir}},{{cliente.dir_id.calle_dir}},{{cliente.dir_id.numero_dir}}
+                      </td>
+                      <td> {{cliente.deleted_at}}</td>
+                      <td>
+                         <button onclick="restaurarCliente('{{ cliente.id_cli }}')" class="btn btn-warning" title="Restaurar">
+                          <i class="fas fa-undo"></i>
+                        </button>
+                        
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer">
+           
+          </div>
+          <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function restaurarCliente(id) {
+    iziToast.question({
+      timeout: 15000,
+      close: true,
+      overlay: true,
+      displayMode: "once",
+      id: "question",
+      zindex: 999,
+      title: "Confirmación",
+      message: "¿Está seguro de restaurar el Cliente seleccionado?",
+      position: "center",
+      buttons: [
+        [
+          "<button><b>SI</b></button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+            window.location.href = `/restaurarCliente/${id}/`;
+          },
+          true,
+        ],
+        [
+          "<button>NO</button>",
+          function (instance, toast) {
+            instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+          },
+        ],
+      ],
+      onClosing: function (instance, toast, closedBy) {
+        console.info("Closing | closedBy: " + closedBy);
+      },
+      onClosed: function (instance, toast, closedBy) {
+        console.info("Closed | closedBy: " + closedBy);
+      },
+    });
+  }
+</script>
+<!--/ Bordered Table -->
+
+{% endblock %} {% block extra_scripts %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    if (!$.fn.dataTable.isDataTable("#tbl_cliente")) {
+      $("#tbl_cliente").DataTable({
+        dom: "Bfrtip",
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        language: {
+          url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json",
+          sProcessing: "Procesando...",
+          sLengthMenu: "Mostrar _MENU_ registros",
+          sZeroRecords: "No se encontraron resultados",
+          sEmptyTable: "Ningún dato disponible en esta tabla",
+          sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+          sInfoPostFix: "",
+          sSearch: "Buscar:",
+          sUrl: "",
+          sInfoThousands: ",",
+          sLoadingRecords: "Cargando...",
+          oPaginate: {
+            sFirst: "Primero",
+            sLast: "Último",
+            sNext: "Siguiente",
+            sPrevious: "Anterior",
+          },
+          oAria: {
+            sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+            sSortDescending: ": Activar para ordenar la columna de manera descendente",
+          },
+        },
+        buttons: [
+          {
+            extend: "pdfHtml5",
+            messageTop: "PDF creado por PDFMake con botones para DataTables.",
+            className: "btn btn-warning",
+          },
+          {
+            extend: "print",
+            className: "btn btn-warning",
+          },
+          {
+            extend: "csv",
+            className: "btn btn-warning",
+          },
+        ],
+      }).buttons().container().appendTo("#tbl_cliente_wrapper .col-md-6:eq(0)");
+    }
+  });
+</script>
+{% endblock %}
