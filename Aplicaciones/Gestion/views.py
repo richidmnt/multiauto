@@ -14,9 +14,13 @@ from django.core.mail import send_mail,BadHeaderError
 from django.urls import reverse
 from django.http import JsonResponse
 from django.conf import settings
+from django.http import HttpResponseServerError
 
 from .decorators import login_required,admin_required,mecanico_required
 from .models import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 def login_view(request):
     if request.method == 'POST':
@@ -89,29 +93,32 @@ def home(request):
 
 @mecanico_required
 def home2(request):
-    usuario_actual = request.user
+    try:
+        usuario_actual = request.user
 
-    ordenes_pendientes_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='PENDIENTE').count()
-    ordenes_progreso_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='EN_PROGRESO').count()
-    ordenes_buscando_repuestos_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='ESPERANDO_REPUESTOS').count()
-    ordenes_completadas_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='COMPLETADA').count()
-    ordenes_finalizadas_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='FINALIZADA').count()
-    ordenes_por_estado = Orden.objects.filter(usuario_id=usuario_actual).values('estado_ord').annotate(total=Count('estado_ord'))
-    ordenes_por_mes = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='FINALIZADA', fecha_fin_ord__isnull=False).annotate(
-        month=ExtractMonth('fecha_fin_ord')
-    ).values('month').annotate(total=Count('id_ord')).order_by('month')
-    context = {
-        'ordenes_pendientes_count': ordenes_pendientes_count,
-        'ordenes_progreso_count': ordenes_progreso_count,
-        'ordenes_buscando_repuestos_count': ordenes_buscando_repuestos_count,
-        'ordenes_completadas_count': ordenes_completadas_count,
-        'ordenes_finalizadas_count': ordenes_finalizadas_count,
-        'ordenes_por_estado': list(ordenes_por_estado),
-        'ordenes_completadas_por_mes': list(ordenes_por_mes),
+        ordenes_pendientes_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='PENDIENTE').count()
+        ordenes_progreso_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='EN_PROGRESO').count()
+        ordenes_buscando_repuestos_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='ESPERANDO_REPUESTOS').count()
+        ordenes_completadas_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='COMPLETADA').count()
+        ordenes_finalizadas_count = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='FINALIZADA').count()
+        ordenes_por_estado = Orden.objects.filter(usuario_id=usuario_actual).values('estado_ord').annotate(total=Count('estado_ord'))
+        ordenes_por_mes = Orden.objects.filter(usuario_id=usuario_actual, estado_ord='FINALIZADA', fecha_fin_ord__isnull=False).annotate(
+            month=ExtractMonth('fecha_fin_ord')
+        ).values('month').annotate(total=Count('id_ord')).order_by('month')
 
-    }
-    print(list(ordenes_por_mes))
-    return render(request,'prueba.html',context)
+        context = {
+            'ordenes_pendientes_count': ordenes_pendientes_count,
+            'ordenes_progreso_count': ordenes_progreso_count,
+            'ordenes_buscando_repuestos_count': ordenes_buscando_repuestos_count,
+            'ordenes_completadas_count': ordenes_completadas_count,
+            'ordenes_finalizadas_count': ordenes_finalizadas_count,
+            'ordenes_por_estado': list(ordenes_por_estado),
+            'ordenes_completadas_por_mes': list(ordenes_por_mes),
+        }
+        return render(request, 'prueba.html', context)
+    except Exception as e:
+        logger.error(f"Error en home2: {e}")
+        return HttpResponseServerError("Se ha producido un error en el servidor.")
 
 @admin_required
 def index1(request):
