@@ -1720,7 +1720,7 @@ h5 {
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-attachment: fixed;
-	background-image: url(../images/section-bg.jpg);
+	background-image: url();
 	z-index: 1;
 	text-align: center;
 	position: relative;
@@ -2502,7 +2502,7 @@ h5 {
 .contact-area {
 	position: relative;
 	z-index: 1;
-	background-image: url(../images/section-bg.jpg);
+	background-image: url();
 	background-attachment: fixed;
 	background-position: top;
 	background-size: cover;
