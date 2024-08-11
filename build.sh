@@ -11,11 +11,36 @@ python manage.py collectstatic --no-input
 # Apply any outstanding database migrations
 python manage.py migrate
 
-python manage.py shell <<EOF
-from django.contrib.auth import get_user_model
-from django.core.management import call_command
+set -o errexit
 
-User = get_user_model()
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'prueba123')
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Convertir archivos estáticos
+python manage.py collectstatic --no-input
+
+# Aplicar migraciones pendientes
+python manage.py migrate
+
+# Crear un usuario de ejemplo con una contraseña de prueba
+python manage.py shell <<EOF
+from Aplicaciones.Gestion.models import Usuario  
+
+# Verificar si el usuario ya existe
+if not Usuario.objects.filter(username='admin').exists():
+    usuario = Usuario(
+        username='admin',
+        nombre='Jorge',
+        apellido='Muela',
+        telefono='123456789',
+        email='admin@example.com',
+        rol=Usuario.ADMINISTRADOR,
+        is_active=True,
+        is_deleted=False
+    )
+    # Establecer la contraseña utilizando el método set_password
+    usuario.set_password('12345678')
+    # Guardar el usuario en la base de datos
+    usuario.save()
+
 EOF
