@@ -779,7 +779,7 @@ def listarOrdenesFinalizadas(request):
 def obtenerOrden(request,id):
     orden = get_object_or_404(Orden, id_ord=id)
     servicios = Servicio.objects.all()
-    usuarios = Usuario.objects.all()
+    usuarios = Usuario.objects.filter(rol = "MECANICO")
     orden_servicios = OrdenServicio.objects.filter(orden_id=orden)
     vehiculos=Vehiculo.objects.all()
     ESTADOS = Orden.ESTADOS
