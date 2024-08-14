@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+
 urlpatterns = [
     path('',views.index,name="index"),
     path('login/',views.login_view,name="login"),
@@ -46,7 +47,7 @@ urlpatterns = [
     path('obtener_repuestos/<int:id>/',views.obtenerRepuestos),
     path('editar_repuestos/',views.editarRepuestos),
     path('eliminar_repuestos/<int:id>/',views.eliminarRepuestos),
-     path('eliminar_detalle_m/<int:id>/',views.eliminarRepuestosM),
+    path('eliminar_detalle_m/<int:id>/',views.eliminarRepuestosM),
     path('detalle_orden/<int:id>/',views.detalleOrden),
     path('detalleInspeccion/<int:id>/',views.reporte_inspeccion),
     path('login/',views.login_view,name="login"),
@@ -80,4 +81,6 @@ urlpatterns = [
     path('recuperar-contraseña/', views.password_reset_request, name='password_reset_request'),
     path('reset-password/<uuid:token>/', views.reset_password, name='reset_password'),
 ]
+handler404 = 'Aplicaciones.Gestion.views.custom_404_view'
+handler500 = 'Aplicaciones.Gestion.views.custom_500_view'
 

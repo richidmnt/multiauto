@@ -1537,3 +1537,10 @@ def reset_password(request, token):
         return redirect('password_reset_request')
 
     return render(request, 'reset_password.html', {'token': token})
+
+
+def custom_404_view(request, exception):
+    return render(request, '404.html', status=404)
+
+def custom_500_view(request):
+    return render(request, '500.html', status=500)
