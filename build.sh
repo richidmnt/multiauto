@@ -11,23 +11,12 @@ python manage.py collectstatic --no-input
 # Apply any outstanding database migrations
 python manage.py migrate
 
-set -o errexit
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Convertir archivos estáticos
-python manage.py collectstatic --no-input
-
-# Aplicar migraciones pendientes
-python manage.py migrate
-
 # Crear un usuario de ejemplo con una contraseña de prueba
 python manage.py shell <<EOF
 from Aplicaciones.Gestion.models import Usuario  
 
 # Verificar si el usuario ya existe
-if not Usuario.objects.filter(username='admin').exists():
+if not Usuario.objects.filter(username='admin2').exists():
     usuario = Usuario(
         username='admin2',
         nombre='Jorge',
