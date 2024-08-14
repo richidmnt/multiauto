@@ -29,7 +29,7 @@ from Aplicaciones.Gestion.models import Usuario
 # Verificar si el usuario ya existe
 if not Usuario.objects.filter(username='admin').exists():
     usuario = Usuario(
-        username='admin',
+        username='admin2',
         nombre='Jorge',
         apellido='Muela',
         telefono='123456789',

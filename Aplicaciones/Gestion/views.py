@@ -1402,7 +1402,8 @@ def agregarDetalleM(request,id):
 
 @mecanico_required
 def guardarRepuestosM(request):
-    if request.method == 'POST':
+    try:
+       if request.method == 'POST':
         orden_id = request.POST.get('orden')
         orden = Orden.objects.get(id_ord=orden_id)
 
@@ -1434,6 +1435,9 @@ def guardarRepuestosM(request):
         except Exception as e:
             messages.error(request, f'Error al guardar repuestos: {e}')
             return redirect('agregar_detalle_m')
+    except Exception as e:
+        logger.error(f"Error en agregardetalle: {e}")
+        return HttpResponseServerError("Se ha producido un error en el servidor.")
 
 @mecanico_required  
 def obtenerRepuestosM(request, id):
