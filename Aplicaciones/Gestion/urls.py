@@ -80,6 +80,8 @@ urlpatterns = [
     path('editar_detalle_m/',views.editarRepuestosM,name="editar_repuestos_m"),
     path('recuperar-contraseña/', views.password_reset_request, name='password_reset_request'),
     path('reset-password/<uuid:token>/', views.reset_password, name='reset_password'),
+    path('configurar_sitio/', views.configurar_sitio, name='configurar_sitio'),
+    
 ]
 handler404 = 'Aplicaciones.Gestion.views.custom_404_view'
 handler500 = 'Aplicaciones.Gestion.views.custom_500_view'

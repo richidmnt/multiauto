@@ -29,6 +29,11 @@
                 </div>
                 <div class="card-body">
                   <div class="form-group">
+                    {% if ultimo_kilometraje %}
+                    <strong><i class="fas fa-car"></i> Kilometraje (última inspección):</strong> {{ ultimo_kilometraje }} <br>
+                    {% else %}
+                    <strong><i class="fas fa-car"></i> Kilometraje (última inspección):</strong> No existe registros <br>
+                    {% endif %}
                     <label for="km" class="form-label">Kilometraje:</label>
                     <input type="number" class="form-control" id="km" name="km" required />
                   </div>
@@ -351,13 +356,13 @@
   }
 
   $(document).ready(function () {
-    // Configuración de la validación del formulario
+    var ultimoKilometraje = {{ultimo_kilometraje}};
     $("#daniosForm").validate({
       rules: {
         km: {
           required: true,
           digits: true,
-          min: 1,
+          min: ultimoKilometraje+1,
           max: 600000,
         },
       },
@@ -366,7 +371,7 @@
         km: {
           required: "Por favor, ingrese el kilometraje del vehículo",
           digits: "Por favor, ingrese solo números",
-          min: "El kilometraje debe ser al menos 1",
+          min: "El kilometraje debe ser mayor a "+{{ultimo_kilometraje}},
           max: "El kilometraje no debe ser más de 600,000",
         },
       },

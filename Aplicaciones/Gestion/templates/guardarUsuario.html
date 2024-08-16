@@ -111,6 +111,11 @@
       icon.classList.add("fa-eye");
     }
   }
+  var passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  $.validator.addMethod("validarContrasena", function (value, element) {
+      return this.optional(element) || passwordPattern.test(value);
+    }, "La contraseña debe tener al menos 8 caracteres, incluir un número, un carácter especial y una letra mayúscula.");
+
   $.validator.addMethod("validarCorreoElectronico", function(value, element) {
             // Expresión regular para validar el formato del correo electrónico
             return this.optional(element) || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
@@ -190,6 +195,7 @@
       password: {
         required: true,
         minlength: 8,
+        validarContrasena: true
       },
       confirm_password: {
         required: true,
@@ -232,6 +238,7 @@
       password: {
         required: "Por favor, ingresa una contraseña",
         minlength: "La contraseña debe tener al menos 8 caracteres",
+        validarContrasena: "La contraseña debe tener al menos 8 caracteres, incluir un número, un carácter especial y una letra mayúscula."
       },
       confirm_password: {
         required: "Por favor, confirma la contraseña",

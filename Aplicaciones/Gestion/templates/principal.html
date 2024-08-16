@@ -77,9 +77,8 @@
                 <div class="row">
                     <div class="col-lg-12 col-md-12">
                         <div class="call-to-action text-right">
-                            <p><i class="fa fa-map-marker"></i> Quito BELLAVISTA Calle: SABANILLA Numero: N61-77
-                            Interseccion: CUARTA TRANSVERSA</p>
-                            <p><i class="fa fa-phone"></i> Tel:+593 96 405 5665</p>
+                            <p><i class="fa fa-map-marker"></i> {{configuracion.direccion}} </p>
+                            <p><i class="fa fa-phone"></i> Tel:{{configuracion.telefono}} </p>
                         </div>
                     </div>
                 </div>
@@ -122,7 +121,7 @@
                                         <h2>Servicio de reparación de automóviles</h2>
                                         <h1>MULTIAUTO</h1>
                                         <h2>¡Siempre ayudamos a nuestros clientes a viajar seguros y mantenerse en las carreteras!</h2>
-                                        <h3>Tel:+593 96 405 5665</h3>
+                                        <h3>Tel:{{configuracion.telefono}} </h3>
                                         <div class="home-button-box home-slider-btn">
                                             <a href="#contact" class="button home-btn js-scroll">Contáctanos</a>
                                         </div>
@@ -141,7 +140,7 @@
                                         <h2>Servicios de reparación de automóviles</h2>
                                         <h1>MULTIAUTO</h1>
                                         <h2>¡Siempre ayudamos a nuestros clientes a viajar seguros y mantenerse en las carreteras!</h2>
-                                        <h3>Phone: +593 98073415</h3>
+                                        <h3>Tel: {{configuracion.telefono}}</h3>
                                         <div class="home-button-box home-slider-btn">
                                             <a href="#contact" class="button home-btn js-scroll">Contáctanos</a>
                                         </div>
@@ -464,7 +463,7 @@
                           <!-- <i class="fa fa-clock-o text-warning"></i> 14 Days -->
                           <!-- <i class="fa fa-users text-danger"></i> 17 portions -->
                         </small>
-                        <p class="card-text" style="text-align: justify;">Ofrecer una solución completa para todos sus problemas relacionados con la reparación de vehículos. Nos enfocamos en entregar servicios de alta calidad y precios competitivos para que nuestros clientes sientan que reciben el mejor valor por su dinero. Nuestro objetivo es ofrecer un servicio eficiente, amigable y profesional, garantizando que nuestros clientes estén satisfechos con nuestros servicios.</p>
+                        <p class="card-text" style="text-align: justify;">{{configuracion.mision}}</p>
                         <!-- <a href="#" class="btn blog-btn">Read More</a> -->
                       </div>
                     </div>
@@ -479,7 +478,7 @@
                             <!-- <i class="fa fa-clock-o text-warning"></i> 5 minutes -->
                             <!-- <i class="fa fa-users text-danger"></i> 4 portions -->
                         </small>
-                        <p class="card-text" style="text-align: justify;">Nuestra visión es convertirnos en el taller mecánico automotriz de referencia para nuestros clientes, ofreciendo el mejor servicio al mejor precio. Queremos ser la empresa líder en el área de inyección electrónica, y para lograrlo nos esforzaremos por mantener un alto nivel de calidad y satisfacción del cliente. Además, trabajaremos para ampliar nuestro alcance a nuevos mercados, ofreciendo productos y servicios de primera clase a nuestros clientes.</p>
+                        <p class="card-text" style="text-align: justify;">{{configuracion.vision}}</p>
                         <!-- <a href="#" class="btn blog-btn">Read More</a> -->
                       </div>
                     </div>
@@ -518,8 +517,7 @@
                                     <i class="fa fa-map-marker"></i>
                                     <div class="cta-text">
                                         <h4>Encuéntranos</h4>
-                                        <span>Quito BELLAVISTA Calle: SABANILLA Numero: N61-77
-                                        Interseccion: CUARTA TRANSVERSA</span>
+                                        <span> {{configuracion.direccion}} </span>
                                     </div>
                                 </div>
                             </div>
@@ -528,7 +526,7 @@
                                     <i class="fa fa-phone"></i>
                                     <div class="cta-text">
                                         <h4>Llámanos</h4>
-                                        <span>+593 96 405 5665</span>
+                                        <span>{{configuracion.telefono}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -537,7 +535,7 @@
                                     <i class="fa fa-envelope-open"></i>
                                     <div class="cta-text">
                                         <h4>Correo</h4>
-                                        <span>multiauto16@gmail.com</span>
+                                        <span>{{configuracion.correo}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -635,9 +633,9 @@
                                 <p></p>
                             </div>
                             <div class="contact-box">
-                                <p><a href="#"><i class="fa fa-map-marker"></i>Quito</a></p>
-                                <p><i class="fa fa-phone"></i> +593 98073415</p>
-                                <p><a class="contact-info-link" href="mailto:info@example.com"><i class="fa fa-envelope-open"></i> multiauto@gmail.com</a></p>
+                                <p><a href="#"><i class="fa fa-map-marker"></i>{{configuracion.direccion}}</a></p>
+                                <p><i class="fa fa-phone"></i> {{configuracion.telefono}}</p>
+                                <p><a class="contact-info-link" href="mailto:info@example.com"><i class="fa fa-envelope-open"></i> {{configuracion.correo}}</a></p>
                             </div>
                             <!--<div class="contact-box">
                                 <p class="opening-hours">Fri <span>24 Hours</span></p>
@@ -679,11 +677,11 @@
                                 <h3>Informativo</h3>
                             </div>
                             <div class="footer-text mb-25">
-                                <p>No dejes de suscribirte a nuestros nuevos feeds, por favor completa el formulario a continuación.</p>
+                                <p>Deja tu correo.</p>
                             </div>
                             <div class="subscribe-form">
                                 <form action="#">
-                                    <input type="text" placeholder="Email Address">
+                                    <input type="text" placeholder="Email">
                                     <button><i class="fa fa-telegram"></i></button>
                                 </form>
                             </div>

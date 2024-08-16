@@ -43,6 +43,7 @@ def login_view(request):
         except Usuario.DoesNotExist:
             messages.error(request, 'Usuario no encontrado')
     return render(request, 'login.html')
+
 def logout(request):
     if 'id_usr' in request.session:
         del request.session['id_usr']
@@ -408,6 +409,7 @@ def listaServicios(request):
     servicios = Servicio.objects.filter(is_deleted=False)
     return render(request,'listaServicios.html',{'servicios':servicios})
 
+@admin_required
 def serviciosEliminados(request):
     servicios = Servicio.objects.filter(is_deleted=True)
     return render(request,'lista_servicios_eliminados.html',{'servicios':servicios})
@@ -1093,6 +1095,7 @@ def eliminarRepuestos(request,id):
 
 @admin_required
 def detalleOrden(request, id):
+    configuracion = Configuracion.objects.get(id=1)
     orden = get_object_or_404(Orden, id_ord=id)
     cliente = orden.vehiculo_id.cli_id
     vehiculo = orden.vehiculo_id
@@ -1108,6 +1111,7 @@ def detalleOrden(request, id):
         'vehiculo': vehiculo,
         'servicios': servicios,
         'repuestos': repuestos,
+        'configuracion':configuracion,
         'total': total,
     }
     
@@ -1142,11 +1146,19 @@ def ordenes_mecanico(request):
 @mecanico_required 
 def aceptar_orden(request, id_ord):
     orden = get_object_or_404(Orden, id_ord=id_ord)
+    vehiculo = orden.vehiculo_id
+    
+    # Obtener la inspección más reciente asociada a este vehículo
+    ultima_inspeccion = Inspeccion.objects.filter(orden_id__vehiculo_id=vehiculo).order_by('-id_ins').first()
+    ultimo_kilometraje = ultima_inspeccion.km if ultima_inspeccion else None
+    
+
     if request.user.rol == Usuario.MECANICO and orden.usuario_id == request.user:
         orden.estado_ord = 'EN_PROGRESO'
         orden.save()
         messages.success(request,'Orden acepta correctamente')
-        return render(request,'inspeccion_m.html',{'orden':orden})
+        return render(request,'inspeccion_m.html',{'orden':orden,'ultimo_kilometraje':ultimo_kilometraje})
+    
 @mecanico_required    
 def lista_progreso(request):
     user = request.user
@@ -1391,7 +1403,8 @@ def obtener_colores(request):
 
 
 def index(request):
-    return render(request,'principal.html')
+    configuracion = Configuracion.objects.get(id=1)
+    return render(request,'principal.html',{'configuracion':configuracion})
 
 @mecanico_required
 def agregarDetalleM(request,id):
@@ -1544,3 +1557,36 @@ def custom_404_view(request, exception):
 
 def custom_500_view(request):
     return render(request, '500.html', status=500)
+
+@admin_required
+def configurar_sitio(request):
+    # Si ya existe una configuración, la recupera; si no, crea una nueva.
+    configuracion, created = Configuracion.objects.get_or_create(id=1)
+
+    if request.method == 'POST':
+        telefono = request.POST.get('telefono')
+        email = request.POST.get('email')
+        direccion = request.POST.get('direccion')
+        mision = request.POST.get('mision')
+        vision = request.POST.get('vision')
+
+        # Validar datos
+        if not telefono or not email or not direccion or not mision or not vision:
+            messages.error(request, 'Todos los campos son obligatorios.')
+        elif len(telefono) != 10 or not telefono.isdigit():
+            messages.error(request, 'El teléfono debe tener 10 dígitos numéricos.')
+        elif '@' not in email:
+            messages.error(request, 'El correo electrónico no es válido.')
+        else:
+            configuracion.telefono = telefono
+            configuracion.correo = email
+            configuracion.direccion = direccion
+            configuracion.mision = mision
+            configuracion.vision = vision
+            configuracion.save()
+
+            messages.success(request, 'Configuración guardada exitosamente.')
+            return redirect('home')
+
+    context = {'configuracion': configuracion}
+    return render(request, 'configuracion.html', context)

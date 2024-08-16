@@ -127,9 +127,8 @@ footer {
         <header>
             <div class="header-left">
                 <img src="{% static 'lib/adminlte/img/logoMulti.jpeg' %}" alt=""  width="250px" class="img-size-25 img-circle mr-3">
-            <p><strong>Dirección</strong>: BELLAVISTA Calle: SABANILLA Numero: N61-77
-            Interseccion: CUARTA TRANSVERSA</p>
-                <p><strong>Tel:</strong>+593 96 405 5665</p>
+            <p><strong>Dirección</strong>: {{configuracion.direccion}} </p>
+                <p><strong>Tel:</strong> {{configuracion.telefono}} </p>
             </div>
             <div class="header-right">
                 <h2>ORDEN DE RECEPCIÓN Y REPARACIÓN</h2>

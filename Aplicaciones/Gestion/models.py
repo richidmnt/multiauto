@@ -4,6 +4,17 @@ from django.utils import timezone
 import uuid
 from django.conf import settings
 
+class Configuracion(models.Model):
+    telefono = models.CharField(max_length=20)
+    correo = models.EmailField()
+    direccion = models.TextField()
+    mision = models.TextField()
+    vision = models.TextField()
+
+    def __str__(self):
+        return "Configuración"
+
+
 
 class Usuario(models.Model):
     id_usr = models.AutoField(primary_key=True)
