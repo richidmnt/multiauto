@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
-
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,12 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-x6m@$f_&d(j&0)%mw!s@#6%z6u*vxm(7+wcdn_&0m^+x05+wi4'
-
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
+DEBUG = 'RENDER' not in os.environ
 ALLOWED_HOSTS = []
-
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Mecanica.wsgi.application'
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-    # 600 segundos = 10 minutos
+
 
 
 
@@ -82,14 +84,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'multiauto',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',  # o la dirección de tu servidor MySQL
-        'PORT': '3306',       # puerto por defecto de MySQL
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3', conn_max_age=600    )
 }
 
 
@@ -129,14 +125,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'Mecanica/static')]
+if not DEBUG:    
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+ 
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'richard.martinez4569@utc.edu.ec'
-EMAIL_HOST_PASSWORD = 'kfhz cupa uwdg oirb'
+EMAIL_HOST_USER = 'serviciosmultiauto24@gmail.com'
+EMAIL_HOST_PASSWORD = 'ejgo kndt onaz ojhc'
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
