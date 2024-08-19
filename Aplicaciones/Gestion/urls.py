@@ -84,6 +84,8 @@ urlpatterns = [
     path('obtener_ordenes_por_estado/<str:estado>/', views.obtener_ordenes_por_estado, name='obtener_ordenes_por_estado'),
     path('obtener_ordenes_finalizadas_por_mes/<int:mes>/',views.obtener_ordenes_finalizadas_por_mes),
     path('obtener_ordenes_por_mecanico/<int:id_mecanico>/', views.obtener_ordenes_por_mecanico, name='obtener_ordenes_por_mecanico'),
+    path('obtener_ordenes_por_estado_m/<str:estado>/', views.obtener_ordenes_por_estado_m, name='obtener_ordenes_por_estado_m'),
+    path('obtener_ordenes_finalizadas_por_mes_m/<int:mes>/',views.obtener_ordenes_finalizadas_por_mes_m),
     
 ]
 handler404 = 'Aplicaciones.Gestion.views.custom_404_view'

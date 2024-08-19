@@ -297,11 +297,43 @@
                             <!-- Gráfica Órdenes por Estado -->
                             <div class="col-lg-6 col-12">
                                 <div class="card">
-                                    <div class="card-header">
+                                    <div class="card-header bg-danger">
                                         <h3 class="card-title">Órdenes por Estado</h3>
                                     </div>
                                     <div class="card-body">
                                         <canvas id="ordenesEstadoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="ordenesPorEstadoModal" tabindex="-1" role="dialog"
+                                aria-labelledby="ordenesPorEstadoModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger">
+                                            <h5 class="modal-title"><strong>Órdenes por Estado:</strong> <span id="modalEstado"></span></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <table id="tbl_ordenes_estado" class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Número de Orden</th>
+                                                        <th>Fecha</th>
+                                                        <th>Cliente</th>
+                                                        <th>Vehículo</th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Las filas se llenarán dinámicamente con JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -313,6 +345,40 @@
                                     </div>
                                     <div class="card-body">
                                         <canvas id="ordenesPorMesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ordenesModal1" class="modal fade" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary">
+                                            <h5 class="modal-title">Órdenes del Mes: <span id="modalMes"></span></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="card-body table-responsive p-0">
+                                                <table id="tbl_ordenes_f" class="table table-head-fixed text-nowrap">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Número de Orden</th>
+                                                            <th>Fecha de Inicio</th>
+                                                            <th>Fecha Fin</th>
+                                                            <th>Cliente</th>
+                                                            <th>Vehiculo</th>
+                                                            <th>Estado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                            
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -354,38 +420,69 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     {% block extra_scripts %}{% endblock %}
     <script>
+        var ordenesEstadoCtx = document.getElementById('ordenesEstadoChart').getContext('2d');
+        var ordenesEstadoChart = new Chart(ordenesEstadoCtx, {
+            type: 'pie',
+            data: {
+                labels: [
+                    {% for orden in ordenes_por_estado %}
+                        '{{ orden.estado_ord }}'{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+                ],
+        datasets: [{
+            data: [
+                {% for orden in ordenes_por_estado %}
+                            {{ orden.total }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+                    ],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF5733']
+                }]
+            },
+        options: {
+            responsive: true,
+                maintainAspectRatio: false,
+                    legend: {
+                position: 'top',
+                },
+            title: {
+                display: true,
+                    text: 'Órdenes por Estado'
+            },
+            onClick: function(event, elements) {
+                if (elements.length > 0) {
+                    var estadoSeleccionado = elements[0].index;
+                    var estadoLabel = this.data.labels[estadoSeleccionado];
+                    document.getElementById('modalEstado').innerText = estadoLabel;
+                    fetch(`/obtener_ordenes_por_estado_m/${estadoLabel}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const tablaOrdenes = document.getElementById('tbl_ordenes_estado').getElementsByTagName('tbody')[0];
+                            tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
+
+                            data.ordenes.forEach((orden) => {
+                                const row = tablaOrdenes.insertRow();
+                                row.innerHTML = `
+                                        <tr class="align-middle">
+                                          <td>${orden.numero_ord}</td>
+                                          <td>${new Date(orden.fecha_ord).toLocaleString()}</td>
+                                          <td>${orden.vehiculo_id__cli_id__nombre_cli} ${orden.vehiculo_id__cli_id__apellido_cli}</td>
+                                          <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
+                                          
+                                        </tr>`;
+                            });
+
+                            // Muestra el modal
+                            $('#ordenesPorEstadoModal').modal('show');
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            }
+        }
+        });
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Gráfica de órdenes por estado
-            var ordenesEstadoCtx = document.getElementById('ordenesEstadoChart').getContext('2d');
-            var ordenesEstadoChart = new Chart(ordenesEstadoCtx, {
-                type: 'pie',
-                data: {
-                    labels: [
-                        {% for orden in ordenes_por_estado %}
-                            '{{ orden.estado_ord }}'{% if not forloop.last %},{% endif %}
-                        {% endfor %}
-                    ],
-                    datasets: [{
-                        data: [
-                            {% for orden in ordenes_por_estado %}
-                                {{ orden.total }}{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        ],
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF5733']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Órdenes por Estado'
-                    }
-                }
-            });
 
             var ordenesMesCtx = document.getElementById('ordenesPorMesChart').getContext('2d');
             var ordenesMesChart = new Chart(ordenesMesCtx, {
@@ -422,8 +519,65 @@
                                 beginAtZero: true
                             }
                         }]
+                    },
+                   onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            var monthIndex = elements[0].index;
+                            var monthLabel = this.data.labels[monthIndex];
+                            var month = parseInt(monthLabel.split(' ')[1]);
+                            console.log(month)
+                            fetch(`/obtener_ordenes_finalizadas_por_mes/${month}/`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log(data);
+                                    const tablaOrdenes = document.getElementById('tbl_ordenes_f').getElementsByTagName('tbody')[0];
+                                    tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
+
+                                    data.ordenes.forEach((orden) => {
+                                        // Define el color de fondo basado en el estado
+                                        let estadoClass;
+                                        switch (orden.estado_ord) {
+                                            case 'PENDIENTE':
+                                                estadoClass = 'bg-danger text-light'; // Rojo
+                                                break;
+                                            case 'EN_PROGRESO':
+                                                estadoClass = 'bg-warning text-dark'; // Amarillo
+                                                break;
+                                            case 'ESPERANDO_REPUESTOS':
+                                                estadoClass = 'bg-info text-dark'; // Azul
+                                                break;
+                                            case 'COMPLETADA':
+                                                estadoClass = 'bg-success text-light'; // Verde
+                                                break;
+                                            case 'FINALIZADA':
+                                                estadoClass = 'bg-secondary text-light'; // Gris
+                                                break;
+                                            default:
+                                                estadoClass = 'bg-light'; // Por defecto
+                                                break;
+                                        }
+                                        const row = tablaOrdenes.insertRow();
+                                        row.innerHTML = `
+                <tr class="align-middle">
+                   <td>${orden.numero_ord}</td>
+          <td>${new Date(orden.fecha_ord).toLocaleString()}</td>
+          <td>${orden.fecha_fin_ord ? new Date(orden.fecha_fin_ord).toLocaleString() : 'N/A'}</td> <!-- Aquí agregamos fecha_fin_ord -->
+          <td>${orden.vehiculo_id__cli_id__nombre_cli} ${orden.vehiculo_id__cli_id__apellido_cli}</td>
+          <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
+           <td>
+              <span class="badge ${estadoClass}">${orden.estado_ord}</span>
+            </td>
+                </tr>`;
+                                    });
+
+                                    // Muestra el modal
+                                    $('#ordenesModal1').modal('show');
+                                })
+                                .catch(error => console.error('Error:', error));
+                        }
                     }
                 }
+                
             });
         });
     </script>
