@@ -516,7 +516,7 @@
         <div id="ordenesModal1" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
-              <div class="modal-header">
+              <div class="modal-header bg-primary">
                 <h5 class="modal-title">Órdenes del Mes: <span id="modalMes"></span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
@@ -957,11 +957,11 @@
           var monthIndex = elements[0].index;
           var monthLabel = this.data.labels[monthIndex];
           var month = parseInt(monthLabel.split(' ')[1]);
-          console.log(month)
+          document.getElementById('modalMes').innerText = month;
           fetch(`/obtener_ordenes_finalizadas_por_mes/${month}/`)
             .then(response => response.json())
             .then(data => {
-              console.log(data);
+              
               const tablaOrdenes = document.getElementById('tbl_ordenes_f').getElementsByTagName('tbody')[0];
               tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
 

@@ -340,7 +340,7 @@
                             <!-- Gráfica Órdenes Completadas por Mes -->
                             <div class="col-lg-6 col-12">
                                 <div class="card">
-                                    <div class="card-header">
+                                    <div class="card-header bg-primary">
                                         <h3 class="card-title">Órdenes Completadas por Mes</h3>
                                     </div>
                                     <div class="card-body">
@@ -525,8 +525,9 @@
                             var monthIndex = elements[0].index;
                             var monthLabel = this.data.labels[monthIndex];
                             var month = parseInt(monthLabel.split(' ')[1]);
+                            document.getElementById('modalMes').innerText = month;
                             console.log(month)
-                            fetch(`/obtener_ordenes_finalizadas_por_mes/${month}/`)
+                            fetch(`/obtener_ordenes_finalizadas_por_mes_m/${month}/`)
                                 .then(response => response.json())
                                 .then(data => {
                                     console.log(data);
