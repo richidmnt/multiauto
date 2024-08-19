@@ -1634,23 +1634,9 @@ def obtener_ordenes_finalizadas_por_mes(request, mes):
         # Filtrar usando ExtractMonth para obtener el mes de la fecha
         ordenes = Orden.objects.annotate(month=ExtractMonth('fecha_ord')) \
             .filter(is_deleted=False, estado_ord='FINALIZADA', month=mes)
-        ordenes_list = [
-            {
-                'id_ord': orden.id_ord,
-                'numero_ord': orden.numero_ord,
-                'fecha_ord': orden.fecha_ord.strftime('%d/%m/%Y %H:%M'),
-                'fecha_fin_ord': orden.fecha_fin_ord.strftime('%d/%m/%Y %H:%M') if orden.fecha_fin_ord else None,
-                'nombre_cli': orden.vehiculo_id.cli_id.nombre_cli,
-                'apellido_cli': orden.vehiculo_id.cli_id.apellido_cli,
-                'marca_veh': orden.vehiculo_id.marca_veh,
-                'modelo_veh': orden.vehiculo_id.modelo_veh,
-                'placa_veh': orden.vehiculo_id.placa_veh,
-                'estado_ord': orden.estado_ord,
-                'total_calculado': orden.calcular_total()
-            }
-            for orden in ordenes
-        ]
-        
+        ordenes_list = list(ordenes.values('id_ord', 'numero_ord', 'fecha_ord','fecha_fin_ord','vehiculo_id__cli_id__nombre_cli', 
+                                           'vehiculo_id__cli_id__apellido_cli', 'vehiculo_id__marca_veh', 
+                                           'vehiculo_id__modelo_veh', 'vehiculo_id__placa_veh', 'estado_ord'))
         return JsonResponse({'ordenes': ordenes_list})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

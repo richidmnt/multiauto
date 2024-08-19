@@ -532,7 +532,7 @@
                         <th>Fecha Fin</th>
                         <th>Cliente</th>
                         <th>Vehiculo</th>
-                        <th>Total</th>
+                        <th>Estado</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -996,7 +996,9 @@
           <td>${orden.fecha_fin_ord ? new Date(orden.fecha_fin_ord).toLocaleString() : 'N/A'}</td> <!-- Aquí agregamos fecha_fin_ord -->
           <td>${orden.vehiculo_id__cli_id__nombre_cli} ${orden.vehiculo_id__cli_id__apellido_cli}</td>
           <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
-          <td>${orden.total_calculado ? orden.total_calculado.toFixed(2) : 'N/A'}</td> <!-- Aquí agregamos el total calculado -->
+           <td>
+              <span class="badge ${estadoClass}">${orden.estado_ord}</span>
+            </td>
                 </tr>`;
               });
 
