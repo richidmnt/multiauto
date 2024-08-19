@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.conf import settings
 from django.http import HttpResponseServerError
-
+from django.db.models.functions import Coalesce
 from .decorators import login_required,admin_required,mecanico_required
 from .models import *
 import logging
@@ -58,7 +58,11 @@ def home(request):
     ordenes_por_estado = Orden.objects.filter(is_deleted=False).values('estado_ord').annotate(total=Count('estado_ord'))
 
    
-    ordenes_por_mes = Orden.objects.filter(is_deleted=False).annotate(month=ExtractMonth('fecha_ord')).values('month').annotate(total=Count('id_ord')).order_by('month')
+    ordenes_por_mes = Orden.objects.filter(is_deleted=False, estado_ord='FINALIZADA') \
+    .annotate(month=Coalesce(ExtractMonth('fecha_ord'), 0)) \
+    .values('month') \
+    .annotate(total=Count('id_ord')) \
+    .order_by('month')
 
     
     ordenes_pendientes_count = Orden.objects.filter(estado_ord='PENDIENTE', ).count()
@@ -72,9 +76,16 @@ def home(request):
     bottom_servicios_usados = OrdenServicio.objects.filter(
         servicio_id__is_deleted=False
     ).values('servicio_id__nombre_ser').annotate(total=Count('servicio_id')).order_by('total')[:5]
-    ordenes_por_mecanico = Orden.objects.filter(is_deleted=False,usuario_id__is_active=True).exclude(estado_ord__in=['COMPLETADA', 'FINALIZADA']).annotate(
+    ordenes_por_mecanico = Orden.objects.filter(
+        is_deleted=False,
+        usuario_id__is_active=True
+    ).exclude(
+        estado_ord__in=['COMPLETADA', 'FINALIZADA']
+    ).annotate(
         mecanico=Concat('usuario_id__nombre', Value(' '), 'usuario_id__apellido')
-    ).values('mecanico').annotate(total=Count('id_ord'))
+    ).values('usuario_id', 'mecanico').annotate(total=Count('id_ord'))
+
+   
 
     context = {
         'total_clientes': total_clientes,
@@ -1590,3 +1601,42 @@ def configurar_sitio(request):
 
     context = {'configuracion': configuracion}
     return render(request, 'configuracion.html', context)
+
+def obtener_ordenes_por_estado(request, estado):
+    try:
+        ordenes = Orden.objects.filter(is_deleted=False, estado_ord=estado)
+        ordenes_list = list(ordenes.values('id_ord', 'numero_ord', 'fecha_ord', 'vehiculo_id__cli_id__nombre_cli', 
+                                           'vehiculo_id__cli_id__apellido_cli', 'vehiculo_id__marca_veh', 
+                                           'vehiculo_id__modelo_veh', 'vehiculo_id__placa_veh', 'estado_ord','usuario_id__nombre','usuario_id__apellido'))
+        return JsonResponse({'ordenes': ordenes_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+def obtener_ordenes_por_mecanico(request, id_mecanico):
+    try:
+        id_mecanico = int(id_mecanico)  # Convierte el ID a entero
+        ordenes = Orden.objects.filter(usuario_id=id_mecanico, is_deleted=False).exclude(
+        estado_ord__in=['COMPLETADA', 'FINALIZADA'])
+        ordenes_list = list(ordenes.values(
+            'id_ord', 'numero_ord', 'fecha_ord', 'usuario_id__nombre','usuario_id__apellido',
+            'vehiculo_id__cli_id__nombre_cli', 'vehiculo_id__cli_id__apellido_cli',
+            'vehiculo_id__marca_veh', 'vehiculo_id__modelo_veh', 'vehiculo_id__placa_veh',
+            'estado_ord'
+        ))
+        return JsonResponse({'ordenes': ordenes_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def obtener_ordenes_finalizadas_por_mes(request, mes):
+    try:
+        mes = int(mes)
+        # Filtrar usando ExtractMonth para obtener el mes de la fecha
+        ordenes = Orden.objects.annotate(month=ExtractMonth('fecha_ord')) \
+            .filter(is_deleted=False, estado_ord='FINALIZADA', month=mes)
+        ordenes_list = list(ordenes.values('id_ord', 'numero_ord', 'fecha_ord', 'vehiculo_id__cli_id__nombre_cli', 
+                                           'vehiculo_id__cli_id__apellido_cli', 'vehiculo_id__marca_veh', 
+                                           'vehiculo_id__modelo_veh', 'vehiculo_id__placa_veh', 'estado_ord'))
+        return JsonResponse({'ordenes': ordenes_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

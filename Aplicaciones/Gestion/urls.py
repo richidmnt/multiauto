@@ -81,6 +81,9 @@ urlpatterns = [
     path('recuperar-contraseña/', views.password_reset_request, name='password_reset_request'),
     path('reset-password/<uuid:token>/', views.reset_password, name='reset_password'),
     path('configurar_sitio/', views.configurar_sitio, name='configurar_sitio'),
+    path('obtener_ordenes_por_estado/<str:estado>/', views.obtener_ordenes_por_estado, name='obtener_ordenes_por_estado'),
+    path('obtener_ordenes_finalizadas_por_mes/<int:mes>/',views.obtener_ordenes_finalizadas_por_mes),
+    path('obtener_ordenes_por_mecanico/<int:id_mecanico>/', views.obtener_ordenes_por_mecanico, name='obtener_ordenes_por_mecanico'),
     
 ]
 handler404 = 'Aplicaciones.Gestion.views.custom_404_view'

@@ -468,6 +468,40 @@
               </div>
             </div>
           </div>
+          <div id="ordenesModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-danger">
+                  <h5 class="modal-title"><strong>Órdenes por Estado:</strong> <span id="modalEstado"></span></h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table id="tbl_1" class="table table-head-fixed text-nowrap">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Número de Orden</th>
+                          <th>Fecha de Inicio</th>
+                          <th>Auto</th>
+                          <th>Responsable</th>
+                    
+                        </tr>
+                      </thead>
+                      <tbody>
+                    
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="col-lg-6 col-12">
             <div class="card">
               <div class="card-header bg-primary">
@@ -479,6 +513,40 @@
             </div>
           </div>
         </div>
+        <div id="ordenesModal1" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Órdenes del Mes: <span id="modalMes"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="card-body table-responsive p-0">
+                  <table id="tbl_ordenes_f" class="table table-head-fixed text-nowrap">
+                    <thead>
+                      <tr>
+                        <th>Número de Orden</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Auto</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                     
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       
       <section class="content">
       <div class="container-fluid">        
@@ -519,7 +587,44 @@
               </div>
             </div>
           </div>
+     </div>
+    
+    <!-- Modal HTML -->
+    <div id="ordenesModal2" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title"><strong>Órdenes asignadas a:</strong> <span id="modalMecanico"></span></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card-body table-responsive p-3">
+              <table id="tbl_ordenes_m" class="table table-head-fixed text-nowrap">
+                <thead>
+                  <tr>
+                    
+                    <th>Número de Orden</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Cliente</th>
+                    <th>Auto</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
         </div>
+      </div>
+    </div>
+
 </section>
         
         {% endblock %}
@@ -583,63 +688,68 @@
       data: {
         labels: [
           {% for orden in ordenes_por_estado %}
-            '{{ orden.estado_ord }}',
-          {% endfor %}
-        ],
-        datasets: [{
-          data: [
-            {% for orden in ordenes_por_estado %}
-              {{ orden.total }},
-            {% endfor %}
-          ],
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: 'Órdenes por Estado'
-        }
+          '{{ orden.estado_ord }}',
+        {% endfor %}
+      ],
+    datasets: [{
+      data: [
+        {% for orden in ordenes_por_estado %}
+            {{ orden.total }},
+    {% endfor %}
+  ],
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800']
+      }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: {
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Órdenes por Estado'
+    },
+    onClick: function (event, elements) {
+      if (elements.length > 0) {
+        var index = elements[0].index;
+        var estado = this.data.labels[index];
+        console.log('Estado clickeado:', estado);
+        // Llama a tu función para obtener las órdenes del estado seleccionado
+        cargarOrdenesPorEstado(estado);
       }
-    });
+    }
+  }
+  });
 
-    var ordenesMesCtx = document.getElementById('ordenesMesChart').getContext('2d');
-    var ordenesMesChart = new Chart(ordenesMesCtx, {
-      type: 'bar',
-      data: {
-        labels: [
-          {% for orden in ordenes_por_mes %}
-            'Mes {{ orden.month }}',
-          {% endfor %}
-        ],
-        datasets: [{
-          label: 'Órdenes por Mes',
-          data: [
-            {% for orden in ordenes_por_mes %}
-              {{ orden.total }},
-            {% endfor %}
-          ],
-          backgroundColor: '#36A2EB'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: 'Órdenes por Mes'
-        }
-      }
-    });
-     // Gráfica Top 5 Servicios Usados
+  function cargarOrdenesPorEstado(estado) {
+      document.getElementById('modalEstado').innerText = estado;
+      fetch(`/obtener_ordenes_por_estado/${estado}/`)
+        .then(response => response.json())
+        .then(data => {
+          const tablaOrdenes = document.getElementById('tbl_1').getElementsByTagName('tbody')[0];
+          tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
+
+          data.ordenes.forEach((orden, index) => {
+            const row = tablaOrdenes.insertRow();
+
+            row.innerHTML = `
+          <tr class="align-middle">
+            <td>${index + 1}</td>
+            <td>${orden.numero_ord}</td>
+            <td>${new Date(orden.fecha_ord).toLocaleString()}</td>
+            <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
+            <td>${orden.usuario_id__nombre} ${orden.usuario_id__apellido}</td>
+            
+          </tr>`;
+          });
+
+          // Muestra el modal
+          $('#ordenesModal').modal('show');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+        // Gráfica Top 5 Servicios Usados
     var topServiciosUsadosCtx = document.getElementById('topServiciosUsadosChart').getContext('2d');
     var topServiciosUsadosChart = new Chart(topServiciosUsadosCtx, {
       type: 'bar',
@@ -704,38 +814,201 @@
         }
       }
     });
-    var ordenesMecanicoCtx = document.getElementById('ordenesMecanicoChart').getContext('2d');
-    var ordenesMecanicoChart = new Chart(ordenesMecanicoCtx, {
+   
+  });
+</script>
+
+<script>
+  var ids = [
+    {% for orden in ordenes_por_mecanico %}
+  '{{ orden.usuario_id }}',
+    {% endfor %}
+  ];
+  console.log('IDs de los mecánicos:', ids);
+</script>
+
+<script>
+  var ordenesMecanicoCtx = document.getElementById('ordenesMecanicoChart').getContext('2d');
+
+  var ordenesMecanicoChart = new Chart(ordenesMecanicoCtx, {
+    type: 'bar',
+    data: {
+      labels: [
+        {% for orden in ordenes_por_mecanico %}
+          '{{ orden.mecanico }}',
+        {% endfor %}
+      ],
+  datasets: [{
+    label: 'Órdenes por Mecánico',
+    data: [
+      {% for orden in ordenes_por_mecanico %}
+            {{ orden.total }},
+  {% endfor %}
+  ],
+    backgroundColor: '#FFCE56'
+      }]
+    },
+  options: {
+    responsive: true,
+      maintainAspectRatio: false,
+        legend: {
+      position: 'top',
+      },
+    title: {
+      display: true,
+        text: 'Órdenes por Mecánico (No Completadas ni Finalizadas)'
+    },
+    onClick: function (event, elements) {
+      if (elements.length > 0) {
+        var index = elements[0].index;
+        var idMecanico = ids[index]; // Asegúrate de que 'ids' esté definido
+        console.log('ID del mecánico clickeado:', idMecanico);
+        cargarOrdenesPorMecanico(parseInt(idMecanico));
+      }
+    }
+  }
+  });
+
+  function cargarOrdenesPorMecanico(idMecanico) {
+      document.getElementById('modalMecanico').innerText = 'Mecánico ID: ' + idMecanico;
+      fetch(`/obtener_ordenes_por_mecanico/${idMecanico}/`)
+        .then(response => response.json())
+        .then(data => {
+          const tablaOrdenes = document.getElementById('tbl_ordenes_m').getElementsByTagName('tbody')[0];
+          tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
+
+          data.ordenes.forEach((orden, index) => {
+            const row = tablaOrdenes.insertRow();
+
+            document.getElementById('modalMecanico').innerText = `${orden.usuario_id__nombre} ${orden.usuario_id__apellido}  `;
+            let estadoClass;
+            switch (orden.estado_ord) {
+              case 'PENDIENTE':
+                estadoClass = 'bg-danger text-light'; // Rojo
+                break;
+              case 'EN_PROGRESO':
+                estadoClass = 'bg-warning text-dark'; // Amarillo
+                break;
+              case 'ESPERANDO_REPUESTOS':
+                estadoClass = 'bg-info text-dark'; // Azul
+                break;
+              case 'COMPLETADA':
+                estadoClass = 'bg-success text-light'; // Verde
+                break;
+              case 'FINALIZADA':
+                estadoClass = 'bg-secondary text-light'; // Gris
+                break;
+              default:
+                estadoClass = 'bg-light'; // Por defecto
+                break;
+            }
+
+            row.innerHTML = `
+          <tr class="align-middle">
+            <td>${orden.numero_ord}</td>
+            <td>${new Date(orden.fecha_ord).toLocaleString()}</td>
+            <td>${orden.vehiculo_id__cli_id__nombre_cli} ${orden.vehiculo_id__cli_id__apellido_cli}</td>
+            <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
+            <td>
+              <span class="badge ${estadoClass}">${orden.estado_ord}</span>
+            </td>
+          </tr>`;
+          });
+
+          // Muestra el modal
+          $('#ordenesModal2').modal('show');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+<script>
+  var ordenesMesCtx = document.getElementById('ordenesMesChart').getContext('2d');
+    var ordenesMesChart = new Chart(ordenesMesCtx, {
       type: 'bar',
       data: {
         labels: [
-          {% for orden in ordenes_por_mecanico %}
-            '{{ orden.mecanico }}',
-          {% endfor %}
-        ],
-        datasets: [{
-          label: 'Órdenes por Mecánico',
-          data: [
-            {% for orden in ordenes_por_mecanico %}
-              {{ orden.total }},
-            {% endfor %}
-          ],
-          backgroundColor: '#FFCE56'
-        }]
-      },
-      options: {
-        responsive: true,
+          {% for orden in ordenes_por_mes %}
+        'Mes {{ orden.month }}',
+      {% endfor %}
+    ],
+    datasets: [{
+      label: 'Órdenes por Mes',
+      data: [
+        {% for orden in ordenes_por_mes %}
+          {{ orden.total }},
+    {% endfor %}
+    ],
+      backgroundColor: '#36A2EB'
+    }]
+  },
+    options: {
+      responsive: true,
         maintainAspectRatio: false,
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: 'Órdenes por Mecánico (No Completadas ni Finalizadas)'
+          legend: {
+        position: 'top',
+    },
+      title: {
+        display: true,
+          text: 'Órdenes por Mes'
+      },
+      onClick: function(event, elements) {
+        if (elements.length > 0) {
+          var monthIndex = elements[0].index;
+          var monthLabel = this.data.labels[monthIndex];
+          var month = parseInt(monthLabel.split(' ')[1]);
+          console.log(month)
+          fetch(`/obtener_ordenes_finalizadas_por_mes/${month}/`)
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              const tablaOrdenes = document.getElementById('tbl_ordenes_f').getElementsByTagName('tbody')[0];
+              tablaOrdenes.innerHTML = '';  // Limpiar la tabla antes de llenarla de nuevo
+
+              data.ordenes.forEach((orden) => {
+                // Define el color de fondo basado en el estado
+                let estadoClass;
+                switch (orden.estado_ord) {
+                  case 'PENDIENTE':
+                    estadoClass = 'bg-danger text-light'; // Rojo
+                    break;
+                  case 'EN_PROGRESO':
+                    estadoClass = 'bg-warning text-dark'; // Amarillo
+                    break;
+                  case 'ESPERANDO_REPUESTOS':
+                    estadoClass = 'bg-info text-dark'; // Azul
+                    break;
+                  case 'COMPLETADA':
+                    estadoClass = 'bg-success text-light'; // Verde
+                    break;
+                  case 'FINALIZADA':
+                    estadoClass = 'bg-secondary text-light'; // Gris
+                    break;
+                  default:
+                    estadoClass = 'bg-light'; // Por defecto
+                    break;
+                }
+                const row = tablaOrdenes.insertRow();
+                row.innerHTML = `
+                <tr class="align-middle">
+                  <td>${orden.numero_ord}</td>
+                  <td>${new Date(orden.fecha_ord).toLocaleString()}</td>
+                  <td>${orden.vehiculo_id__cli_id__nombre_cli} ${orden.vehiculo_id__cli_id__apellido_cli}</td>
+                  <td>${orden.vehiculo_id__marca_veh} ${orden.vehiculo_id__modelo_veh} ${orden.vehiculo_id__placa_veh}</td>
+                  <td>
+                    <span class="badge ${estadoClass}">${orden.estado_ord}</span>
+                  </td>
+                </tr>`;
+              });
+
+              // Muestra el modal
+              $('#ordenesModal1').modal('show');
+            })
+            .catch(error => console.error('Error:', error));
         }
       }
-    });
-  });
+    }
+});
+
 </script>
 
     <!-- AdminLTE for demo purposes 
@@ -750,5 +1023,6 @@
       });
     </script>
     {% endfor %} {% endif %}
+
   </body>
 </html>
