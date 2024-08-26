@@ -715,7 +715,7 @@
       if (elements.length > 0) {
         var index = elements[0].index;
         var estado = this.data.labels[index];
-        console.log('Estado clickeado:', estado);
+          
         // Llama a tu función para obtener las órdenes del estado seleccionado
         cargarOrdenesPorEstado(estado);
       }
@@ -825,7 +825,7 @@
   '{{ orden.usuario_id }}',
     {% endfor %}
   ];
-  console.log('IDs de los mecánicos:', ids);
+
 </script>
 
 <script>
@@ -863,7 +863,7 @@
       if (elements.length > 0) {
         var index = elements[0].index;
         var idMecanico = ids[index]; // Asegúrate de que 'ids' esté definido
-        console.log('ID del mecánico clickeado:', idMecanico);
+        
         cargarOrdenesPorMecanico(parseInt(idMecanico));
       }
     }
