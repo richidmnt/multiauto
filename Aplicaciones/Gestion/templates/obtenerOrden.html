@@ -120,7 +120,7 @@
               </div>
 
               <div class="d-flex justify-content-start mt-3">
-                <button type="button" onclick="actualizar()" class="btn btn-primary">Actualizar Orden</button>
+                <button type="submit" class="btn btn-primary">Actualizar Orden</button>
                 <a href="{% url 'listarOrdenes' %}" class="btn btn-danger ml-2">Cancelar</a>
               </div>
             </form>
@@ -139,51 +139,7 @@
     width: 100% !important;
   }
 </style>
-<script>
-  function actualizar() {
-    if ($("#ordenForm").valid()) {
-      iziToast.question({
-        timeout: 15000,
-        close: true,
-        overlay: true,
-        displayMode: "once",
-        id: "question",
-        zindex: 999,
-        title: "Confirmación",
-        message: "¿Está seguro de actualizar la información de la inspección?",
-        position: "center",
-        buttons: [
-          [
-            "<button><b>SI</b></button>",
-            function (instance, toast) {
-              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
-              document.getElementById('ordenForm').submit();
-            },
-            true,
-          ],
-          [
-            "<button>NO</button>",
-            function (instance, toast) {
-              instance.hide({ transitionOut: "fadeOut" }, toast, "button");
-            },
-          ],
-        ],
-        onClosing: function (instance, toast, closedBy) {
-          console.info("Closing | closedBy: " + closedBy);
-        },
-        onClosed: function (instance, toast, closedBy) {
-          console.info("Closed | closedBy: " + closedBy);
-        },
-      });
-    } else {
-      iziToast.error({
-        title: 'Error',
-        message: 'Por favor, corrija los errores en el formulario.',
-        position: 'topRight'
-      });
-    }
-  }
-</script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     updateTotal();
@@ -252,18 +208,32 @@
     var servicios = [];
     var duplicado = false;
     var duplicadoNombre = "";
+    var servicioVacio = false;
 
     servicioSelects.forEach(function (select) {
       var servicioId = select.value;
       var servicioNombre = select.options[select.selectedIndex].dataset.nombre;
+
+      if (!servicioId) {
+        servicioVacio = true;
+      }
+
       if (servicios.includes(servicioId)) {
         duplicado = true;
         duplicadoNombre = servicioNombre;
       }
+
       servicios.push(servicioId);
     });
 
-    if (duplicado) {
+    if (servicioVacio) {
+      e.preventDefault();
+      iziToast.error({
+        title: 'Error',
+        message: 'No se puede enviar un servicio vacío. Por favor, seleccione un servicio válido.',
+        position: 'topRight'
+      });
+    } else if (duplicado) {
       e.preventDefault();
       iziToast.error({
         title: 'Error',
@@ -272,6 +242,7 @@
       });
     }
   });
+
 
   $(document).ready(function() {
     $("#ordenForm").validate({

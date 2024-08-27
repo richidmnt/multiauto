@@ -829,6 +829,7 @@ def editarOrden(request):
         servicio_ids = request.POST.getlist('servicio_id[]')
         subtotales = request.POST.getlist('subtotal[]')
         
+        
         for servicio_id, subtotal in zip(servicio_ids, subtotales):
             subtotal = subtotal.replace(',', '.')
             OrdenServicio.objects.create(
