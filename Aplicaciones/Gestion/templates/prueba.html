@@ -119,7 +119,7 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
           
-                <a href="{% url 'home' %}" class="brand-link text-center font-size-5 custom-font">
+                <a href="{% url 'home2' %}" class="brand-link text-center font-size-5 custom-font">
                     <b class="">MultiAuto</b>
                 </a>
             
@@ -392,7 +392,7 @@
         <!-- /.content-wrapper -->
 
         <footer class="main-footer">
-            <strong> <a href="https://adminlte.io">MultiAuto</a>.</strong>
+            <strong> <a href="{%  url 'home2' %}">MultiAuto</a>.</strong>
         </footer>
 
         <aside class="control-sidebar control-sidebar-dark">
@@ -435,7 +435,7 @@
                             {{ orden.total }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
                     ],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF5733']
+        backgroundColor: ['#008000', '#808080', '#FFFF00', '#0000FF', '#FFFF00']
                 }]
             },
         options: {
